@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -13,15 +14,29 @@ export function SiteHeader() {
   }, []);
   return (
     <header className={`site-header ${scrolled ? "site-header-scrolled" : ""}`}>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5">
+      <div className="site-header-inner mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5">
         <Link href="/" className="brand-mark"><span>Predict</span><span>Race</span></Link>
-        <nav className="hidden items-center gap-8 text-sm md:flex">
-          <Link className="nav-link" href="/predicts">Predictions</Link>
-          <Link className="nav-link" href="/races">Races</Link>
-          <Link className="nav-link" href="/#how-it-works">How it works</Link>
-          <Link className="nav-link" href="/#about">About</Link>
+        <nav className={`site-nav ${menuOpen ? "site-nav-open" : ""}`} id="mobile-navigation">
+          <Link className="nav-link" href="/predicts" onClick={() => setMenuOpen(false)}>Predictions</Link>
+          <Link className="nav-link" href="/races" onClick={() => setMenuOpen(false)}>Races</Link>
+          <Link className="nav-link" href="/#how-it-works" onClick={() => setMenuOpen(false)}>How it works</Link>
+          <Link className="nav-link" href="/#about" onClick={() => setMenuOpen(false)}>About</Link>
         </nav>
-        <Link className="header-cta" href="/predicts">Explore Predictions</Link>
+        <div className="header-actions">
+          <Link className="header-cta" href="/predicts">Explore Predictions</Link>
+          <button
+            aria-controls="mobile-navigation"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+            className="mobile-menu-button"
+            onClick={() => setMenuOpen((current) => !current)}
+            type="button"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
       </div>
     </header>
   );

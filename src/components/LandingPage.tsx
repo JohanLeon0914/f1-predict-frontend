@@ -25,6 +25,13 @@ const steps = [
   ["04", "EXPLORE RESULTS"],
 ];
 
+const trackPaths = [
+  "M19 53 C48 12, 93 7, 124 28 C156 50, 159 73, 121 74 C88 75, 79 52, 48 66 C32 73, 14 70, 19 53Z",
+  "M18 61 C12 35, 39 16, 68 25 C94 33, 96 53, 119 55 C146 58, 162 25, 176 40 C187 52, 169 75, 142 72 C111 69, 93 84, 61 75 C39 69, 24 77, 18 61Z",
+  "M25 25 C43 8, 77 18, 81 38 C85 59, 111 64, 133 52 C153 41, 172 50, 163 67 C153 86, 119 77, 94 72 C65 66, 28 75, 20 55 C16 44, 17 33, 25 25Z",
+  "M20 46 C31 20, 59 14, 79 29 C98 43, 113 28, 135 22 C159 15, 175 33, 161 52 C145 73, 111 65, 91 59 C65 51, 48 81, 27 68 C18 62, 16 54, 20 46Z",
+];
+
 export function LandingPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -114,7 +121,7 @@ export function LandingPage() {
                 <strong>{race.name}</strong>
               </div>
               <svg viewBox="0 0 180 86" role="img" aria-label={`${race.name} circuit outline`}>
-                <path d="M19 53 C48 12, 93 7, 124 28 C156 50, 159 73, 121 74 C88 75, 79 52, 48 66 C32 73, 14 70, 19 53Z" />
+                <path d={trackPaths[index % trackPaths.length]} />
               </svg>
               <footer>
                 <b>{race.date}</b>

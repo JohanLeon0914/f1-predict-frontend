@@ -66,6 +66,37 @@ button:disabled {
 
 .site-header > div {
   pointer-events: auto;
+  position: relative;
+}
+
+.site-nav {
+  align-items: center;
+  display: flex;
+  gap: 2rem;
+}
+
+.header-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.7rem;
+}
+
+.mobile-menu-button {
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  display: none;
+  height: 2.45rem;
+  padding: 0.5rem;
+  width: 2.45rem;
+}
+
+.mobile-menu-button span {
+  background: #fff;
+  display: block;
+  height: 2px;
+  margin: 4px 0;
+  width: 100%;
 }
 
 .brand-mark {
@@ -855,6 +886,40 @@ pre {
 }
 
 @media (max-width: 900px) {
+  .site-nav {
+    gap: 1rem;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .site-nav {
+    background: rgb(8 9 10 / 0.97);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 18px 45px rgb(0 0 0 / 0.42);
+    display: none;
+    gap: 0;
+    left: 1rem;
+    padding: 0.5rem;
+    position: absolute;
+    right: 1rem;
+    top: calc(100% - 0.25rem);
+  }
+
+  .site-nav.site-nav-open {
+    display: grid;
+  }
+
+  .site-nav .nav-link {
+    padding: 0.85rem;
+  }
+
+  .site-header-inner {
+    flex-wrap: nowrap;
+  }
+
   .header-cta {
     min-height: 2.35rem;
     padding: 0.45rem 0.7rem;
@@ -914,6 +979,10 @@ pre {
 
   .header-cta {
     font-size: 0.72rem;
+  }
+
+  .header-actions .header-cta {
+    display: none;
   }
 
   .hero-image {
@@ -1476,6 +1545,23 @@ pre {
     grid-template-columns: 1fr;
   }
 
+  .wizard-panel-header,
+  .race-context {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 1.35rem;
+  }
+
+  .wizard-panel-header > div:first-child,
+  .race-context > div:first-child {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .calendar-continue {
+    margin-left: 0;
+  }
+
   .wizard-step i,
   .simulation-toolbar .button-primary {
     justify-self: stretch;
@@ -1531,5 +1617,141 @@ pre {
   .race-card-date {
     grid-column: 1 / -1;
     justify-items: start;
+  }
+
+  .page-shell {
+    padding-top: 5.8rem;
+  }
+
+  .races-wizard {
+    padding-inline: 0.7rem;
+  }
+
+  .wizard-steps {
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+
+  .wizard-step {
+    gap: 0.65rem;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+  }
+
+  .wizard-step > span {
+    height: 2.4rem;
+    width: 2.4rem;
+  }
+
+  .wizard-step strong {
+    font-size: 0.88rem;
+  }
+
+  .wizard-step small {
+    font-size: 0.72rem;
+  }
+
+  .wizard-step i {
+    display: none;
+  }
+
+  .wizard-panel-header h1,
+  .race-context h1 {
+    font-size: 2rem;
+    overflow-wrap: anywhere;
+  }
+
+  .race-context .wizard-track {
+    height: 4.5rem;
+    width: 100%;
+  }
+
+  .simulation-toolbar {
+    grid-template-columns: 1fr 1fr;
+    padding: 1rem;
+  }
+
+  .simulation-toolbar .button-primary {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+
+  .driver-config-row {
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .driver-main {
+    grid-template-columns: 1.6rem 2.8rem minmax(0, 1fr);
+  }
+
+  .driver-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .driver-fields label:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .remove-driver {
+    justify-self: end;
+  }
+
+  .results-grid {
+    padding: 0.8rem;
+  }
+
+  .winner-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 1rem;
+  }
+
+  .winner-card .probability-ring {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .ranking-row {
+    gap: 0.45rem;
+    grid-template-columns: 1.4rem 2.5rem minmax(0, 1fr) 3rem;
+  }
+
+  .ranking-row i {
+    grid-column: 3;
+  }
+
+  .ranking-row b {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .section-heading {
+    gap: 0.8rem;
+  }
+
+  .section-heading h2,
+  .prediction-copy h2,
+  .final-cta h2 {
+    font-size: clamp(2.1rem, 11vw, 3.5rem);
+  }
+
+  .landing-section {
+    padding: 3.5rem 1rem;
+  }
+
+  .race-strip {
+    grid-auto-columns: minmax(15.5rem, 84vw);
+  }
+
+  .dashboard-mock {
+    gap: 0.6rem;
+    padding: 0.6rem;
+  }
+
+  .dashboard-mock section {
+    display: none;
+  }
+
+  .mock-card {
+    padding: 0.8rem;
   }
 }
