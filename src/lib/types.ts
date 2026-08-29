@@ -18,13 +18,117 @@ export type PredictionRequest = {
 export type PredictionItem = {
   predicted_position: number;
   driverId: number;
+  constructorId?: number;
   score: number;
+  dashboard_stats?: PredictionDashboardStats;
+  top_contributions?: PredictionContribution[];
+  analysis?: PredictionAnalysis;
 };
 
 export type PredictionResponse = {
-  race_id: number;
-  circuit_id: number;
+  race_date?: string | null;
+  dashboard_analysis?: PredictionDashboardAnalysis;
+  analysis_summary?: PredictionAnalysisSummary;
+  race_id?: number;
+  circuit_id?: number;
   predictions: PredictionItem[];
+};
+
+export type PredictionDashboardAnalysis = {
+  top_3?: PredictionDashboardGroup;
+  top_5?: PredictionDashboardGroup;
+  top_10?: PredictionDashboardGroup;
+  all_drivers?: PredictionDashboardGroup;
+};
+
+export type PredictionDashboardGroup = {
+  label: string;
+  requested_size: number;
+  actual_size: number;
+  drivers: PredictionDashboardDriver[];
+  score_summary?: Partial<Record<"average" | "min" | "max" | "spread", number>>;
+  shared_top_contributions?: PredictionSharedContribution[];
+  feature_group_averages?: Record<string, Record<string, number | string | null>>;
+};
+
+export type PredictionDashboardStats = {
+  starting_position?: Record<string, number | string | null>;
+  driver_form?: Record<string, number | string | null>;
+  driver_circuit_history?: Record<string, number | string | null>;
+  constructor_form?: Record<string, number | string | null>;
+  constructor_circuit_fit?: Record<string, number | string | null>;
+  constructor_pair?: Record<string, number | string | null>;
+  circuit_profile?: Record<string, number | string | null>;
+  [key: string]: Record<string, number | string | null> | undefined;
+};
+
+export type PredictionContribution = {
+  feature: string;
+  contribution: number;
+  abs_contribution: number;
+  direction: "up" | "down" | string;
+};
+
+export type PredictionSharedContribution = {
+  feature: string;
+  mean_contribution: number;
+  total_contribution: number;
+  abs_mean_contribution: number;
+  direction: "up" | "down" | string;
+};
+
+export type PredictionDashboardDriver = Pick<
+  PredictionItem,
+  "predicted_position" | "driverId" | "constructorId" | "score"
+> & {
+  dashboard_stats?: PredictionDashboardStats;
+  top_contributions?: PredictionContribution[];
+};
+
+export type ModelMetricSplit = {
+  ndcg?: number;
+  spearman?: number;
+  mae_position?: number;
+  top1_accuracy?: number;
+  top3_accuracy?: number;
+  top10_accuracy?: number;
+  [key: string]: number | undefined;
+};
+
+export type PredictionAnalysisSummary = {
+  participant_count: number;
+  model_output_note?: string;
+  explanation_note?: string;
+  available_feature_groups?: string[];
+  global_feature_importance?: Array<{
+    feature: string;
+    importance: number;
+    importance_pct: number;
+  }>;
+  model_metrics?: {
+    validation?: ModelMetricSplit;
+    test?: ModelMetricSplit;
+  };
+};
+
+export type PredictionAnalysis = {
+  feature_groups?: {
+    starting_position?: Record<string, number | string | null>;
+    driver_form?: Record<string, number | string | null>;
+    driver_circuit_history?: Record<string, number | string | null>;
+    constructor_form?: Record<string, number | string | null>;
+    constructor_circuit_fit?: Record<string, number | string | null>;
+    constructor_pair?: Record<string, number | string | null>;
+    circuit_profile?: Record<string, number | string | null>;
+    [key: string]: Record<string, number | string | null> | undefined;
+  };
+  top_contributions?: Array<{
+    feature: string;
+    contribution: number;
+    abs_contribution: number;
+    direction: "up" | "down" | string;
+  }>;
+  bias?: number;
 };
 
 export type ApiHealth = {

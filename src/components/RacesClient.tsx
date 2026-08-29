@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
   getHealth,
   getLocalF1Data,
@@ -169,6 +170,8 @@ export function RacesClient() {
   const [metrics, setMetrics] = useState<Record<string, unknown> | null>(null);
   const [health, setHealth] = useState<"checking" | "ok" | "error">("checking");
   const [result, setResult] = useState<AveragedPrediction[]>([]);
+  const [analysisResponse, setAnalysisResponse] = useState<PredictionResponse | null>(null);
+  const [showAnalysisDashboard, setShowAnalysisDashboard] = useState(false);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [savedMode, setSavedMode] = useState<string | null>(null);
@@ -217,6 +220,8 @@ export function RacesClient() {
     setSelectedRaceId(race.raceId);
     setParticipants(data?.participantsByRace[String(race.raceId)] ?? (data ? buildBaselineRoster(data) : []));
     setResult([]);
+    setAnalysisResponse(null);
+    setShowAnalysisDashboard(false);
     setSavedMode(null);
   }
 
@@ -234,6 +239,8 @@ export function RacesClient() {
     if (!data) return;
     setParticipants(data.participantsByRace[String(selectedRaceId)] ?? buildBaselineRoster(data));
     setResult([]);
+    setAnalysisResponse(null);
+    setShowAnalysisDashboard(false);
     setSavedMode(null);
   }
 
@@ -262,6 +269,8 @@ export function RacesClient() {
     setError(null);
     setSavedMode(null);
     setResult([]);
+    setAnalysisResponse(null);
+    setShowAnalysisDashboard(false);
     setRunning(true);
     setProgress(0);
 
@@ -277,6 +286,12 @@ export function RacesClient() {
 
       const averaged = buildAverages(runs.map((run) => run.predictions));
       setResult(averaged);
+      setAnalysisResponse({
+        ...runs[0],
+        race_id: runs[0]?.race_id ?? selectedRace.raceId,
+        circuit_id: runs[0]?.circuit_id ?? selectedRace.circuitId,
+        race_date: runs[0]?.race_date ?? selectedRace.date,
+      });
 
       const saved: SavedPrediction = {
         id: crypto.randomUUID(),
@@ -585,11 +600,30 @@ export function RacesClient() {
                 {savedMode ? ` · Saved to ${savedMode}` : ""}
               </p>
             </div>
-            <button className="button-secondary" onClick={() => setStep(2)} type="button">
-              Adjust prediction
-            </button>
+            <div className="results-actions">
+              {analysisResponse?.dashboard_analysis || analysisResponse?.analysis_summary || analysisResponse?.predictions.some((item) => item.analysis) ? (
+                <button
+                  className={showAnalysisDashboard ? "button-primary" : "button-secondary"}
+                  onClick={() => setShowAnalysisDashboard((current) => !current)}
+                  type="button"
+                >
+                  {showAnalysisDashboard ? "View summary" : "View analysis dashboard"}
+                </button>
+              ) : null}
+              <button className="button-secondary" onClick={() => setStep(2)} type="button">
+                Adjust prediction
+              </button>
+            </div>
           </div>
 
+          {showAnalysisDashboard && analysisResponse ? (
+            <PredictionAnalysisDashboard
+              constructors={data?.constructors ?? []}
+              drivers={data?.drivers ?? []}
+              race={selectedRace}
+              response={analysisResponse}
+            />
+          ) : (
           <div className="results-grid">
             <article className="winner-card">
               <div>
@@ -646,6 +680,7 @@ export function RacesClient() {
               </dl>
             </article>
           </div>
+          )}
         </div>
       </section>
     </div>
