@@ -28,6 +28,12 @@ type AveragedPrediction = PredictionItem & {
   runs: number;
 };
 
+function normalizeSimulationCount(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 3);
+  if (!digits) return 1;
+  return Math.min(Math.max(Number(digits), 1), 100);
+}
+
 const steps: Array<{ id: Step; title: string; copy: string }> = [
   { id: 1, title: "Choose a race", copy: "Select a future calendar event" },
   { id: 2, title: "Drivers & prediction", copy: "Configure and run the simulation" },
@@ -417,11 +423,12 @@ export function RacesClient() {
             <label className="field">
               Simulations
               <input
-                max={100}
-                min={1}
-                type="number"
+                inputMode="numeric"
+                maxLength={3}
+                pattern="[0-9]*"
+                type="text"
                 value={simulationCount}
-                onChange={(event) => setSimulationCount(Number(event.target.value))}
+                onChange={(event) => setSimulationCount(normalizeSimulationCount(event.target.value))}
               />
             </label>
             <button className="button-secondary" onClick={resetRoster} type="button">

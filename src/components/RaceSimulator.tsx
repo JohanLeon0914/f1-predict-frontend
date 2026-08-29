@@ -28,6 +28,12 @@ type AveragedPrediction = PredictionItem & {
   runs: number;
 };
 
+function normalizeSimulationCount(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 3);
+  if (!digits) return 1;
+  return Math.min(Math.max(Number(digits), 1), 100);
+}
+
 const emptyParticipant: ParticipantRequest = {
   driverId: 0,
   constructorId: 0,
@@ -289,11 +295,12 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
           <label className="field">
             Simulations
             <input
-              max={100}
-              min={1}
-              type="number"
+              inputMode="numeric"
+              maxLength={3}
+              pattern="[0-9]*"
+              type="text"
               value={simulationCount}
-              onChange={(event) => setSimulationCount(Number(event.target.value))}
+              onChange={(event) => setSimulationCount(normalizeSimulationCount(event.target.value))}
             />
           </label>
         </div>

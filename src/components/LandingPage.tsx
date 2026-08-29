@@ -85,8 +85,8 @@ export function LandingPage() {
             <span>WIN.</span>
           </h1>
           <p className="hero-copy">AI-powered motorsport predictions.</p>
-          <Link className="red-cta" href="/predicts">
-            Explore Predictions <span>→</span>
+          <Link className="red-cta" href="/races">
+            Explore Races <span>→</span>
           </Link>
         </div>
 
@@ -134,15 +134,15 @@ export function LandingPage() {
 
       <section className="landing-section prediction-experience">
         <div className="prediction-copy reveal">
-          <p className="tech-label">REAL PREDICTIONS</p>
+          <p className="tech-label">RACE INTELLIGENCE</p>
           <h2>
             SEE THE FUTURE
             <br />
             BEFORE THE LIGHTS GO OUT.
           </h2>
-          <p>Race predictions powered by historical performance data.</p>
-          <Link className="red-cta" href="/predicts">
-            View Predictions <span>→</span>
+          <p>Choose a race and prepare a data-backed prediction before the lights go out.</p>
+          <Link className="red-cta" href="/races">
+            Browse Races <span>→</span>
           </Link>
         </div>
 
@@ -151,7 +151,7 @@ export function LandingPage() {
             <b>Predict Race</b>
             <span>Dashboard</span>
             <span>Races</span>
-            <span>Predictions</span>
+            <span>Race setup</span>
             <span>History</span>
           </aside>
           <main>
@@ -227,8 +227,8 @@ export function LandingPage() {
       <section className="final-cta">
         <div className="cta-glow" />
         <h2 className="reveal">READY FOR THE NEXT RACE?</h2>
-        <Link className="red-cta reveal" href="/predicts">
-          Explore Predictions <span>→</span>
+        <Link className="red-cta reveal" href="/races">
+          Browse Races <span>→</span>
         </Link>
       </section>
 
@@ -238,7 +238,6 @@ export function LandingPage() {
           <span>Race</span>
         </Link>
         <nav>
-          <Link href="/predicts">Predictions</Link>
           <Link href="/races">Races</Link>
           <Link href="/#about">About</Link>
         </nav>

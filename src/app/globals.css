@@ -580,6 +580,13 @@ pre {
   grid-template-columns: 0.8fr 1.4fr;
 }
 
+.prediction-copy,
+.dashboard-mock,
+.dashboard-mock main {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .prediction-copy p:not(.tech-label) {
   color: var(--muted);
   margin: 1rem 0 1.5rem;
@@ -631,8 +638,7 @@ pre {
 }
 
 .mock-wide {
-  min-height: 10rem;
-  position: relative;
+  min-height: 13rem;
 }
 
 .mock-wide h3 {
@@ -647,11 +653,12 @@ pre {
 }
 
 .mock-wide svg {
-  height: 5rem;
-  position: absolute;
-  right: 1rem;
-  top: 2.8rem;
-  width: 11rem;
+  display: block;
+  height: 4.5rem;
+  margin-top: 0.8rem;
+  max-width: 100%;
+  position: static;
+  width: 100%;
 }
 
 .prediction-list {
@@ -950,6 +957,7 @@ pre {
   }
 
   .dashboard-mock {
+    overflow: hidden;
     grid-template-columns: 1fr;
     transform: none;
   }
