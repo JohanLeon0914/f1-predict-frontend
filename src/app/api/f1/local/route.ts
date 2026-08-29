@@ -16,13 +16,14 @@ import type {
 // Keep the environment override for deployments where the dataset is mounted elsewhere.
 const csvRootCandidates = [
   process.env.F1_CSV_ROOT,
+  path.resolve(process.cwd(), "F1", "CSVs"),
   path.resolve(process.cwd(), "..", "f1_rank_predict", "F1", "CSVs"),
   path.resolve(process.cwd(), "..", "F1", "CSVs"),
 ].filter((root): root is string => Boolean(root));
 
 const csvRoot =
   csvRootCandidates.find((root) => existsSync(root)) ??
-  path.resolve(process.cwd(), "..", "f1_rank_predict", "F1", "CSVs");
+  path.resolve(process.cwd(), "F1", "CSVs");
 
 const knownModernConstructorsById = new Map<number, string>([
   [1, "McLaren"],
