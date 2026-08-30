@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
@@ -162,6 +163,8 @@ function DriverHelmet({ driver }: { driver?: DriverOption }) {
 }
 
 export function RacesClient() {
+  const searchParams = useSearchParams();
+  const requestedRaceId = searchParams.get("race");
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState<LocalF1Data | null>(null);
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null);
@@ -182,9 +185,14 @@ export function RacesClient() {
     Promise.allSettled([getLocalF1Data(), getHealth(), getMetrics()]).then(
       ([localData, healthResult, metricsResult]) => {
         if (localData.status === "fulfilled") {
-          const nextRace = localData.value.races.find((race) => race.status === "future");
+          const requestedRace = Number(requestedRaceId);
+          const linkedRace = localData.value.races.find(
+            (race) => race.status === "future" && race.raceId === requestedRace,
+          );
+          const nextRace = linkedRace ?? localData.value.races.find((race) => race.status === "future");
           setData(localData.value);
           setSelectedRaceId(nextRace?.raceId ?? null);
+          setStep(linkedRace ? 2 : 1);
           setParticipants(
             (nextRace && localData.value.participantsByRace[String(nextRace.raceId)]) ??
               buildBaselineRoster(localData.value),
@@ -196,7 +204,7 @@ export function RacesClient() {
         if (metricsResult.status === "fulfilled") setMetrics(metricsResult.value);
       },
     );
-  }, []);
+  }, [requestedRaceId]);
 
   const futureRaces = useMemo(
     () => data?.races.filter((race) => race.status === "future") ?? [],

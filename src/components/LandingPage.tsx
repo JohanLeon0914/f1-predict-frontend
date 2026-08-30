@@ -3,13 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-const races = [
-  { name: "MONACO", date: "07 JUN", country: "MC", status: "NEXT" },
-  { name: "SILVERSTONE", date: "05 JUL", country: "UK", status: "OPEN" },
-  { name: "SPA", date: "19 JUL", country: "BE", status: "OPEN" },
-  { name: "MONZA", date: "06 SEP", country: "IT", status: "OPEN" },
-];
+import { getLocalF1Data } from "@/lib/f1-ranker-api";
+import type { Race } from "@/lib/types";
 
 const features = [
   ["UPCOMING EVENTS", "Discover future races."],
@@ -32,8 +27,53 @@ const trackPaths = [
   "M20 46 C31 20, 59 14, 79 29 C98 43, 113 28, 135 22 C159 15, 175 33, 161 52 C145 73, 111 65, 91 59 C65 51, 48 81, 27 68 C18 62, 16 54, 20 46Z",
 ];
 
+const countryCodes: Record<string, string> = {
+  Australia: "AU",
+  Azerbaijan: "AZ",
+  Bahrain: "BH",
+  Belgium: "BE",
+  Brazil: "BR",
+  Canada: "CA",
+  China: "CN",
+  France: "FR",
+  Hungary: "HU",
+  Italy: "IT",
+  Japan: "JP",
+  Mexico: "MX",
+  Monaco: "MC",
+  Netherlands: "NL",
+  Qatar: "QA",
+  Saudi: "SA",
+  Singapore: "SG",
+  Spain: "ES",
+  Turkey: "TR",
+  UAE: "AE",
+  "United Kingdom": "UK",
+  "United States": "US",
+};
+
+function formatLandingDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  return new Intl.DateTimeFormat("en-US", { day: "2-digit", month: "short" })
+    .format(date)
+    .toUpperCase();
+}
+
+function countryCode(country?: string) {
+  return countryCodes[country ?? ""] ?? country?.slice(0, 2).toUpperCase() ?? "F1";
+}
+
 export function LandingPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [races, setRaces] = useState<Race[]>([]);
+  const [racesLoading, setRacesLoading] = useState(true);
+
+  useEffect(() => {
+    getLocalF1Data()
+      .then((data) => setRaces(data.races.filter((race) => race.status === "future").slice(0, 3)))
+      .catch(() => setRaces([]))
+      .finally(() => setRacesLoading(false));
+  }, []);
 
   useEffect(() => {
     let frame = 0;
@@ -109,26 +149,35 @@ export function LandingPage() {
 
       <section className="landing-section upcoming-section">
         <div className="section-heading reveal">
-          <p className="tech-label">UPCOMING RACES</p>
+            <p className="tech-label">UPCOMING RACES</p>
           <h2>Select the next event.</h2>
           <Link href="/races">View all races →</Link>
         </div>
         <div className="race-strip">
-          {races.map((race, index) => (
-            <article className={`event-tile reveal ${index === 0 ? "event-tile-active" : ""}`} key={race.name}>
-              <div>
-                <span>{race.status}</span>
-                <strong>{race.name}</strong>
-              </div>
-              <svg viewBox="0 0 180 86" role="img" aria-label={`${race.name} circuit outline`}>
-                <path d={trackPaths[index % trackPaths.length]} />
-              </svg>
-              <footer>
-                <b>{race.date}</b>
-                <span>{race.country}</span>
-              </footer>
-            </article>
-          ))}
+          {racesLoading
+            ? Array.from({ length: 3 }, (_, index) => (
+                <article className="event-tile event-tile-skeleton" aria-hidden="true" key={`race-skeleton-${index}`}>
+                  <span className="skeleton-line skeleton-status" />
+                  <span className="skeleton-line skeleton-title" />
+                  <span className="skeleton-track" />
+                  <span className="skeleton-line skeleton-date" />
+                </article>
+              ))
+            : races.map((race, index) => (
+                <Link className="event-tile reveal" href={`/races?race=${race.raceId}`} key={race.raceId}>
+                  <div>
+                    <span>{index === 0 ? "NEXT" : "OPEN"}</span>
+                    <strong>{race.name.replace(/\s+Grand Prix$/u, "")}</strong>
+                  </div>
+                  <svg viewBox="0 0 180 86" role="img" aria-label={`${race.name} circuit outline`}>
+                    <path d={trackPaths[index % trackPaths.length]} />
+                  </svg>
+                  <footer>
+                    <b>{formatLandingDate(race.date)}</b>
+                    <span>{countryCode(race.circuit?.country)}</span>
+                  </footer>
+                </Link>
+              ))}
         </div>
       </section>
 

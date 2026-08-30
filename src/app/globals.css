@@ -516,11 +516,27 @@ pre {
   min-height: 16rem;
   padding: 1.25rem;
   position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  transform: translateZ(0);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-.event-tile-active {
+.races-loading {
+  min-height: 24rem;
+}
+
+.event-tile:hover,
+.event-tile:focus-visible {
   border-color: rgb(239 51 64 / 0.62);
-  box-shadow: 0 0 38px rgb(239 51 64 / 0.12);
+  box-shadow: 0 0 38px rgb(239 51 64 / 0.16);
+  transform: scale(1.035);
+  z-index: 2;
+}
+
+.event-tile:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
 }
 
 .event-tile div {
@@ -571,6 +587,58 @@ pre {
 .event-tile b {
   color: var(--red);
   font-size: 1.15rem;
+}
+
+.event-tile-skeleton {
+  cursor: default;
+  min-height: 15.8rem;
+  overflow: hidden;
+}
+
+.event-tile-skeleton:hover {
+  border-color: var(--border);
+  box-shadow: none;
+  transform: none;
+}
+
+.skeleton-line,
+.skeleton-track {
+  animation: landingSkeleton 1.25s ease-in-out infinite;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.05));
+  background-size: 220% 100%;
+  border-radius: 0.35rem;
+  display: block;
+}
+
+.skeleton-status {
+  height: 0.65rem;
+  margin-bottom: 1rem;
+  width: 3.5rem;
+}
+
+.skeleton-title {
+  height: 1.7rem;
+  width: 62%;
+}
+
+.skeleton-track {
+  border-radius: 50%;
+  height: 5rem;
+  margin: 1rem auto 0;
+  opacity: 0.65;
+  width: 76%;
+}
+
+.skeleton-date {
+  bottom: 1.2rem;
+  height: 1rem;
+  position: absolute;
+  width: 4.5rem;
+}
+
+@keyframes landingSkeleton {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
 }
 
 .prediction-experience {
