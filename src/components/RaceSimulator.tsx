@@ -7,6 +7,8 @@ import {
   getMetrics,
   predictRace,
 } from "@/lib/f1-ranker-api";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { useAuth } from "@/components/AuthProvider";
 import { ensureGuestId, savePrediction } from "@/lib/supabase";
 import type {
   LocalF1Data,
@@ -99,6 +101,7 @@ function buildBlankRoster(data: LocalF1Data): ParticipantRequest[] {
 }
 
 export function RaceSimulator({ mode, selectedRace }: Props) {
+  const { loading: authLoading, user } = useAuth();
   const [data, setData] = useState<LocalF1Data | null>(null);
   const [raceId, setRaceId] = useState(selectedRace ? String(selectedRace.raceId) : "");
   const [circuitId, setCircuitId] = useState(selectedRace ? String(selectedRace.circuitId) : "");
@@ -115,6 +118,7 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [savedMode, setSavedMode] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     ensureGuestId();
@@ -183,6 +187,13 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
   }
 
   async function submit() {
+    if (authLoading) return;
+
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     setError(null);
     setSavedMode(null);
     setResult([]);
@@ -245,6 +256,7 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       <section className="panel">
         <div className="flex flex-col gap-4 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -316,7 +328,7 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
           >
             Add driver
           </button>
-          <button className="button-primary" disabled={running} onClick={submit} type="button">
+          <button className="button-primary" disabled={running || authLoading} onClick={submit} type="button">
             {running ? `Running ${progress}/${simulationCount}` : "Run simulation"}
           </button>
         </div>

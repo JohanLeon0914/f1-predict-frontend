@@ -1,4 +1,5 @@
 import type { SavedPrediction } from "./types";
+import { supabaseAuth } from "./supabase-auth";
 
 async function readJson<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null);
@@ -9,9 +10,14 @@ async function readJson<T>(response: Response): Promise<T> {
 }
 
 export async function savePrediction(prediction: SavedPrediction) {
+  const session = await supabaseAuth?.auth.getSession();
+  const accessToken = session?.data.session?.access_token;
   const response = await fetch("/api/predictions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     body: JSON.stringify({
       ...prediction,
       guest_id: window.localStorage.getItem("f1-ml-guest-id"),
@@ -33,7 +39,12 @@ export async function savePrediction(prediction: SavedPrediction) {
 }
 
 export async function loadSavedPredictions(): Promise<SavedPrediction[]> {
-  const response = await fetch("/api/predictions", { cache: "no-store" });
+  const session = await supabaseAuth?.auth.getSession();
+  const accessToken = session?.data.session?.access_token;
+  const response = await fetch("/api/predictions", {
+    cache: "no-store",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+  });
 
   if (response.status === 204) {
     return JSON.parse(

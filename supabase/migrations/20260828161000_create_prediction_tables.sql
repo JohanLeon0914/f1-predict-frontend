@@ -35,24 +35,20 @@ create index if not exists predictions_race_id_created_at_idx
 
 alter table public.predictions enable row level security;
 
-grant select, insert on public.predictions to anon, authenticated;
+grant select, insert on public.predictions to authenticated;
 
 drop policy if exists "guest can insert predictions" on public.predictions;
-create policy "guest can insert predictions"
+drop policy if exists "guest can read predictions" on public.predictions;
+drop policy if exists "users can insert their own predictions" on public.predictions;
+create policy "users can insert their own predictions"
   on public.predictions
   for insert
-  to anon, authenticated
+  to authenticated
   with check (
     simulation_count between 1 and 100
     and source in ('predicts', 'races')
+    and user_id = auth.uid()
   );
-
-drop policy if exists "guest can read predictions" on public.predictions;
-create policy "guest can read predictions"
-  on public.predictions
-  for select
-  to anon, authenticated
-  using (true);
 
 drop policy if exists "users can read their own future predictions" on public.predictions;
 create policy "users can read their own future predictions"
@@ -62,10 +58,10 @@ create policy "users can read their own future predictions"
   using (user_id = auth.uid());
 
 comment on table public.predictions is
-  'Stores guest and future authenticated user F1 ML race prediction simulations.';
+  'Stores authenticated user F1 ML race prediction simulations.';
 
 comment on column public.predictions.guest_id is
   'Client-generated guest identifier stored in localStorage until auth is added.';
 
 comment on column public.predictions.user_id is
-  'Reserved for future required login and paid simulations.';
+  'Supabase Auth user that owns the prediction.';

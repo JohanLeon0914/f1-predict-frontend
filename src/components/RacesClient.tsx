@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { useAuth } from "@/components/AuthProvider";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
   getHealth,
@@ -163,6 +165,7 @@ function DriverHelmet({ driver }: { driver?: DriverOption }) {
 }
 
 export function RacesClient() {
+  const { loading: authLoading, user } = useAuth();
   const searchParams = useSearchParams();
   const requestedRaceId = searchParams.get("race");
   const [step, setStep] = useState<Step>(1);
@@ -179,6 +182,7 @@ export function RacesClient() {
   const [progress, setProgress] = useState(0);
   const [savedMode, setSavedMode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     ensureGuestId();
@@ -253,6 +257,13 @@ export function RacesClient() {
   }
 
   async function runPrediction() {
+    if (authLoading) return;
+
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     if (!selectedRace) {
       setError("Choose a race before running a prediction.");
       return;
@@ -337,6 +348,7 @@ export function RacesClient() {
 
   return (
     <div className="races-wizard page-shell mx-auto max-w-[118rem] px-4 pb-10">
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       <div className="wizard-steps" aria-label="Prediction process">
         {steps.map((item, index) => (
           <button
@@ -460,7 +472,7 @@ export function RacesClient() {
             <button className="button-secondary" onClick={() => setStep(1)} type="button">
               Change race
             </button>
-            <button className="button-primary" disabled={running} onClick={runPrediction} type="button">
+            <button className="button-primary" disabled={running || authLoading} onClick={runPrediction} type="button">
               {running ? `Running ${progress}/${simulationCount}` : "Run prediction"} <span>→</span>
             </button>
           </div>

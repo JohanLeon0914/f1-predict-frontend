@@ -34,8 +34,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-Si Supabase no esta configurado, las predicciones se guardan temporalmente en `localStorage`.
 No uses `sb_secret_*` en el frontend. Esa llave es solo para backend, server functions o workers.
+
+Para el login, habilita Google en Supabase Auth y agrega la URL publica de tu app en
+Authentication > URL Configuration.
 
 ## Supabase
 
@@ -47,4 +49,4 @@ Ejecuta esta migracion en el SQL editor de Supabase:
 supabase/migrations/20260828161000_create_prediction_tables.sql
 ```
 
-Para modo invitado, la migracion habilita RLS y permite `select`/`insert` con la publishable key. No habilita update/delete. Cuando agregues login obligatorio, endurece las policies para filtrar por `auth.uid()`.
+La migracion habilita RLS para que cada usuario autenticado solo pueda insertar y leer sus propias predicciones.

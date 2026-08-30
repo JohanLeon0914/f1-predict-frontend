@@ -8,10 +8,17 @@ const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-function getSupabase() {
+function getSupabase(accessToken?: string | null) {
   if (!supabaseUrl || !supabaseKey) return null;
   return createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false },
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      : undefined,
   });
 }
 
@@ -19,13 +26,24 @@ type SavedPredictionPayload = SavedPrediction & {
   guest_id?: string | null;
 };
 
-export async function GET() {
-  const supabase = getSupabase();
+function getAccessToken(request: NextRequest) {
+  const authorization = request.headers.get("authorization");
+  return authorization?.startsWith("Bearer ") ? authorization.slice("Bearer ".length) : null;
+}
+
+export async function GET(request: NextRequest) {
+  const accessToken = getAccessToken(request);
+  const supabase = getSupabase(accessToken);
   if (!supabase) return new NextResponse(null, { status: 204 });
+
+  const { data: userData } = accessToken
+    ? await supabase.auth.getUser(accessToken)
+    : { data: { user: null } };
 
   const { data, error } = await supabase
     .from("predictions")
     .select("*")
+    .eq(userData.user ? "user_id" : "guest_id", userData.user?.id ?? "__no_guest_predictions__")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -53,13 +71,24 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = getSupabase();
+  const accessToken = getAccessToken(request);
+  const supabase = getSupabase(accessToken);
   if (!supabase) return new NextResponse(null, { status: 204 });
+
+  if (!accessToken) {
+    return NextResponse.json({ detail: "Debes iniciar sesion para guardar predicciones." }, { status: 401 });
+  }
+
+  const { data: userData, error: userError } = await supabase.auth.getUser(accessToken);
+  if (userError || !userData.user) {
+    return NextResponse.json({ detail: "Sesion invalida. Vuelve a iniciar sesion." }, { status: 401 });
+  }
 
   const prediction = (await request.json()) as SavedPredictionPayload;
   const { error } = await supabase.from("predictions").insert({
     id: prediction.id,
-    guest_id: prediction.guest_id,
+    guest_id: null,
+    user_id: userData.user.id,
     source: prediction.source,
     race_id: prediction.race.raceId,
     circuit_id: prediction.race.circuitId,
