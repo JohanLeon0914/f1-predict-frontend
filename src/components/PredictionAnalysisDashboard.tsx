@@ -6,7 +6,6 @@ import type { CSSProperties } from "react";
 import type {
   ConstructorOption,
   DriverOption,
-  ModelMetricSplit,
   PredictionContribution,
   PredictionDashboardDriver,
   PredictionDashboardStats,
@@ -142,6 +141,18 @@ function groupEntries(stats?: PredictionDashboardStats) {
   );
 }
 
+function groupTone(groupKey: string) {
+  const tones: Record<string, string> = {
+    driver_form: "green",
+    driver_circuit_history: "teal",
+    constructor_form: "orange",
+    constructor_circuit_fit: "purple",
+    constructor_pair: "yellow",
+    circuit_profile: "teal",
+  };
+  return tones[groupKey] ?? "";
+}
+
 function driverContributions(driver: PredictionDashboardDriver): PredictionContribution[] {
   return driver.top_contributions ?? [];
 }
@@ -183,12 +194,12 @@ function RadarChart({ driver }: { driver: PredictionDashboardDriver }) {
     })
     .join(" ");
   const labelPositions = [
-    { x: 180, y: 26, anchor: "middle" },
-    { x: 306, y: 90, anchor: "start" },
-    { x: 306, y: 250, anchor: "start" },
+    { x: 180, y: 24, anchor: "middle" },
+    { x: 280, y: 82, anchor: "start" },
+    { x: 280, y: 246, anchor: "start" },
     { x: 180, y: 324, anchor: "middle" },
-    { x: 54, y: 250, anchor: "end" },
-    { x: 54, y: 90, anchor: "end" },
+    { x: 80, y: 246, anchor: "end" },
+    { x: 80, y: 82, anchor: "end" },
   ] as const;
 
   return (
@@ -222,20 +233,26 @@ function RadarChart({ driver }: { driver: PredictionDashboardDriver }) {
               cx={cx}
               cy={cy}
               r="5"
-              onMouseEnter={(event) => setTooltip({ label: item.label, score: item.score, x: event.clientX, y: event.clientY })}
-              onMouseMove={(event) => setTooltip((current) => (current ? { ...current, x: event.clientX, y: event.clientY } : current))}
+              onMouseEnter={() => setTooltip({ label: item.label, score: item.score, x: cx, y: cy })}
               onMouseLeave={() => setTooltip(null)}
             />
           );
         })}
-        {items.map((item, index) => (
-          <text className="radar-label" key={item.label} x={labelPositions[index].x} y={labelPositions[index].y} textAnchor={labelPositions[index].anchor}>
-            {item.label}
-          </text>
-        ))}
+        {items.map((item, index) => {
+          const lines = item.label.split(" ");
+          return (
+            <text className="radar-label" key={item.label} x={labelPositions[index].x} y={labelPositions[index].y} textAnchor={labelPositions[index].anchor}>
+              <tspan x={labelPositions[index].x} dy="0">{lines.slice(0, Math.ceil(lines.length / 2)).join(" ")}</tspan>
+              <tspan x={labelPositions[index].x} dy="1.15em">{lines.slice(Math.ceil(lines.length / 2)).join(" ")}</tspan>
+            </text>
+          );
+        })}
       </svg>
       {tooltip ? (
-        <div className="radar-tooltip" style={{ left: tooltip.x + 14, top: tooltip.y + 14 }}>
+        <div
+          className="radar-tooltip"
+          style={{ left: `${(tooltip.x / 360) * 100}%`, top: `${(tooltip.y / 340) * 100}%` }}
+        >
           <strong>{tooltip.label}</strong>
           <span>Strength score: {Math.round(tooltip.score)}/100</span>
         </div>
@@ -249,20 +266,23 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
   const allDrivers = response.dashboard_analysis?.all_drivers?.drivers?.length
     ? response.dashboard_analysis.all_drivers.drivers
     : response.predictions;
-  const dashboardDrivers = useMemo(() => [...allDrivers].sort((a, b) => a.predicted_position - b.predicted_position), [allDrivers]);
+  const dashboardDrivers = useMemo(() => {
+    const predictionByDriver = new Map(response.predictions.map((driver) => [driver.driverId, driver]));
+
+    return [...allDrivers]
+      .map((driver) => {
+        const prediction = predictionByDriver.get(driver.driverId);
+        return {
+          ...driver,
+          analysis: driver.analysis ?? prediction?.analysis,
+          dashboard_stats: driver.dashboard_stats ?? prediction?.analysis?.feature_groups,
+          top_contributions: driver.top_contributions ?? prediction?.analysis?.top_contributions,
+        };
+      })
+      .sort((a, b) => a.predicted_position - b.predicted_position);
+  }, [allDrivers, response.predictions]);
   const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
   const selectedDriver = dashboardDrivers.find((driver) => driver.driverId === selectedDriverId) ?? dashboardDrivers[0];
-  const validation = summary?.model_metrics?.validation ?? {};
-  const test = summary?.model_metrics?.test ?? {};
-
-  const statCards = [
-    ["Participants", summary?.participant_count ?? dashboardDrivers.length, "Drivers analyzed"],
-    ["Model", "XGBoost Ranker", "Model used"],
-    ["NDCG (test)", formatMetric(test.ndcg), "Ranking performance"],
-    ["Top 1 accuracy (test)", formatMetric(test.top1_accuracy, "pct"), "Exact winner"],
-    ["Top 3 accuracy (test)", formatMetric(test.top3_accuracy, "pct"), "Podium accuracy"],
-    ["Position MAE (test)", formatMetric(test.mae_position), "Mean error"],
-  ];
 
   return (
     <section className="analysis-dashboard">
@@ -275,20 +295,10 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
             {race?.circuit ? <> <span>•</span> {race.circuit.name.toUpperCase()}</> : null}
           </p>
         </div>
-        {summary?.model_output_note ? <div className="analysis-note">ⓘ {summary.model_output_note}</div> : null}
       </header>
 
-      <div className="analysis-stat-grid">
-        {statCards.map(([label, value, help]) => (
-          <article className="analysis-stat" key={label}>
-            <span>{label}</span>
-            <strong>{value}</strong>
-            <small>{help}</small>
-          </article>
-        ))}
-      </div>
-
-      <div className="analysis-main-grid">
+      <main className="analysis-main-grid">
+        <div className="analysis-left-column">
         <article className="analysis-card prediction-result-card">
           <div className="driver-picker-header">
             <h3>Driver analysis</h3>
@@ -342,6 +352,16 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
           )}
         </article>
 
+        <article className="analysis-card radar-card">
+          <h3>Driver strengths on this circuit</h3>
+          <div className="radar-legend">
+            <span>{selectedDriver ? driverName(selectedDriver.driverId, drivers) : "Driver"}</span>
+          </div>
+          {selectedDriver ? <RadarChart driver={selectedDriver} /> : null}
+        </article>
+        </div>
+
+        <div className="analysis-right-column">
         <article className="analysis-card contribution-card">
           <h3>Top model explanations</h3>
           <div className="contribution-list">
@@ -355,21 +375,15 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
             ))}
             {!selectedDriver?.top_contributions?.length ? <p>No contribution data returned.</p> : null}
           </div>
-          <footer>Bias (model intercept) <strong>{formatMetric(selectedDriver?.analysis?.bias)}</strong></footer>
         </article>
+        </div>
+      </main>
 
-        <article className="analysis-card radar-card">
-          <h3>Driver strengths on this circuit</h3>
-          <div className="radar-legend">
-            <span>{selectedDriver ? driverName(selectedDriver.driverId, drivers) : "Driver"}</span>
-          </div>
-          {selectedDriver ? <RadarChart driver={selectedDriver} /> : null}
-        </article>
-      </div>
-
-      <div className="feature-groups-grid selected-driver-groups">
-        {groupEntries(selectedDriver?.dashboard_stats).map(([groupKey, group]) => (
-          <article className="feature-analysis-card" key={groupKey}>
+      <section className="feature-groups-grid selected-driver-groups" aria-label="Selected driver feature groups">
+        {groupEntries(selectedDriver?.dashboard_stats)
+          .filter(([groupKey]) => groupKey !== "starting_position")
+          .map(([groupKey, group]) => (
+          <article className={`feature-analysis-card ${groupTone(groupKey)}`} key={groupKey}>
             <h3>{statGroupLabels[groupKey] ?? formatFeatureName(groupKey)}</h3>
             <dl>
               {Object.entries(group).slice(0, 6).map(([key, value]) => (
@@ -381,40 +395,7 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
             </dl>
           </article>
         ))}
-      </div>
-
-      <article className="analysis-card model-performance-card">
-        <h3>Model performance</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Validation</th>
-              <th>Test</th>
-              <th>Interpretation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["NDCG", "ndcg", "Strong ranking quality"],
-              ["Spearman", "spearman", "Order correlation"],
-              ["Position MAE", "mae_position", "Mean position error"],
-              ["Top 1 accuracy", "top1_accuracy", "Winner hit rate"],
-              ["Top 3 accuracy", "top3_accuracy", "Podium hit rate"],
-              ["Top 10 accuracy", "top10_accuracy", "Top 10 hit rate"],
-            ].map(([label, key, text]) => (
-              <tr key={key}>
-                <td>{label}</td>
-                <td>{formatMetric((validation as ModelMetricSplit)[key])}</td>
-                <td>{formatMetric((test as ModelMetricSplit)[key], key.includes("accuracy") ? "pct" : "number")}</td>
-                <td>{text}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </article>
-
-      {summary?.explanation_note ? <p className="analysis-footnote">ⓘ {summary.explanation_note}</p> : null}
+      </section>
     </section>
   );
 }

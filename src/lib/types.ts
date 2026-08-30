@@ -79,7 +79,7 @@ export type PredictionSharedContribution = {
 
 export type PredictionDashboardDriver = Pick<
   PredictionItem,
-  "predicted_position" | "driverId" | "constructorId" | "score"
+  "predicted_position" | "driverId" | "constructorId" | "score" | "analysis"
 > & {
   dashboard_stats?: PredictionDashboardStats;
   top_contributions?: PredictionContribution[];

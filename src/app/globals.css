@@ -718,10 +718,17 @@ pre {
   color: #f6fbff;
   display: grid;
   gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
   margin-top: 1rem;
   min-width: 0;
   overflow: hidden;
   padding: 1rem;
+}
+
+.analysis-dashboard > * {
+  min-width: 0;
+  width: 100%;
 }
 
 .analysis-topbar {
@@ -729,6 +736,7 @@ pre {
   display: flex;
   gap: 1rem;
   justify-content: space-between;
+  min-width: 0;
 }
 
 .analysis-kicker {
@@ -773,6 +781,8 @@ pre {
   display: grid;
   gap: 0.7rem;
   grid-template-columns: repeat(6, minmax(0, 1fr));
+  min-width: 0;
+  width: 100%;
 }
 
 .analysis-stat,
@@ -788,6 +798,8 @@ pre {
 
 .analysis-stat {
   min-height: 6.5rem;
+  min-width: 0;
+  overflow: hidden;
   padding: 0.9rem;
 }
 
@@ -807,6 +819,7 @@ pre {
   font-size: 1.6rem;
   font-weight: 950;
   margin: 0.6rem 0 0.3rem;
+  overflow-wrap: anywhere;
 }
 
 .analysis-stat:nth-child(4) strong,
@@ -824,9 +837,26 @@ pre {
 }
 
 .analysis-main-grid {
+  align-items: start;
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(24rem, 1.15fr) minmax(18rem, 0.8fr) minmax(24rem, 0.9fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
+}
+
+.analysis-left-column,
+.analysis-right-column {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.analysis-left-column {
+  grid-column: 1;
+}
+
+.analysis-right-column {
+  align-self: stretch;
+  grid-column: 2;
 }
 
 .analysis-main-grid.full-grid {
@@ -839,11 +869,33 @@ pre {
 }
 
 .prediction-result-card {
-  grid-column: span 1;
+  grid-column: auto;
+}
+
+.contribution-card {
+  grid-column: auto;
+  grid-row: auto;
+  height: 100%;
+}
+
+.radar-card {
+  grid-column: auto;
+  grid-row: auto;
+  min-height: 0;
 }
 
 .model-performance-card {
-  grid-column: span 2;
+  grid-column: auto;
+}
+
+.analysis-dashboard > .analysis-main-grid,
+.analysis-dashboard > .feature-groups-grid,
+.analysis-dashboard > .model-performance-card,
+.analysis-dashboard > .analysis-footnote {
+  grid-column: 1;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
 }
 
 .winner-detail {
@@ -1019,10 +1071,6 @@ pre {
   float: right;
 }
 
-.radar-card {
-  min-height: 25rem;
-}
-
 .radar-legend {
   color: var(--muted);
   display: flex;
@@ -1046,9 +1094,10 @@ pre {
 
 .analysis-radar {
   display: block;
-  height: 22rem;
+  height: auto;
   margin: 0 auto;
-  max-width: 100%;
+  max-width: 30rem;
+  width: 100%;
 }
 
 .analysis-radar-wrap {
@@ -1098,7 +1147,8 @@ pre {
   max-width: 18rem;
   padding: 0.7rem 0.8rem;
   pointer-events: none;
-  position: fixed;
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 0.75rem));
   z-index: 80;
 }
 
@@ -1535,15 +1585,16 @@ pre {
 }
 
 .feature-groups-grid {
+  align-items: start;
   display: grid;
   gap: 0.7rem;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .feature-analysis-card {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 13.8rem;
+  min-height: 0;
   padding: 0.95rem;
 }
 
@@ -1586,22 +1637,25 @@ pre {
 
 .feature-analysis-card div {
   align-items: baseline;
-  display: flex;
-  gap: 0.7rem;
-  justify-content: space-between;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .feature-analysis-card dt {
   color: var(--muted);
   font-size: 0.75rem;
+  line-height: 1.35;
 }
 
 .feature-analysis-card dd {
   color: #fff;
   font-size: 0.78rem;
   font-weight: 850;
-  overflow-wrap: anywhere;
+  max-width: 5.5rem;
+  overflow-wrap: normal;
   text-align: right;
+  white-space: nowrap;
 }
 
 .feature-analysis-card footer {
@@ -2761,11 +2815,12 @@ pre {
 
 @media (max-width: 1320px) {
   .analysis-stat-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .analysis-main-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+    gap: 0.7rem;
   }
 
   .analysis-main-grid.full-grid,
@@ -2776,7 +2831,7 @@ pre {
   }
 
   .selected-driver-groups {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .model-performance-card {
@@ -2784,17 +2839,101 @@ pre {
   }
 
   .feature-groups-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .analysis-card {
+    padding: 0.75rem;
+  }
+
+  .winner-detail {
+    gap: 0.55rem;
+    grid-template-columns: 2.7rem 4.2rem minmax(0, 1fr);
+    padding: 0.65rem;
+  }
+
+  .analysis-headshot {
+    height: 4.2rem;
+    width: 4.2rem;
+  }
+
+  .winner-position span {
+    font-size: 2.9rem;
+  }
+
+  .winner-meta {
+    gap: 0.35rem;
+  }
+
+  .winner-meta dd {
+    font-size: 0.78rem;
+  }
+
+  .winner-score {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    grid-column: 1 / -1;
+    padding: 0.55rem 0 0;
+  }
+
+  .winner-score strong {
+    font-size: 1.55rem;
+  }
+
+  .analysis-mini-stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .analysis-mini-stats div {
+    padding: 0.55rem 0.35rem;
+  }
+
+  .analysis-mini-stats div:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .contribution-row {
+    gap: 0.35rem;
+    grid-template-columns: minmax(0, 1fr) 3.1rem 3.25rem 0.8rem;
+    min-height: 2.25rem;
+  }
+
+  .contribution-row span,
+  .contribution-row b {
+    font-size: 0.65rem;
+  }
+
+  .contribution-row em {
+    font-size: 1rem;
+  }
+
+  .analysis-radar {
+    height: 18rem;
   }
 }
 
 @media (max-width: 760px) {
   .analysis-dashboard {
+    box-sizing: border-box;
+    gap: 0.75rem;
+    max-width: 100%;
     padding: 0.75rem;
   }
 
   .analysis-topbar {
     display: grid;
+    gap: 0.75rem;
+  }
+
+  .analysis-topbar h2 {
+    font-size: clamp(1.45rem, 8vw, 2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .analysis-subline {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
   }
 
   .driver-picker-header {
@@ -2804,6 +2943,27 @@ pre {
 
   .analysis-note {
     max-width: none;
+    width: 100%;
+  }
+
+  .analysis-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .analysis-left-column,
+  .analysis-right-column {
+    grid-column: auto;
+  }
+
+  .contribution-card {
+    height: auto;
+  }
+
+  .prediction-result-card,
+  .contribution-card,
+  .radar-card {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .analysis-stat-grid,
@@ -2811,9 +2971,14 @@ pre {
     grid-template-columns: 1fr;
   }
 
+  .analysis-card {
+    padding: 0.8rem;
+  }
+
   .winner-detail {
-    grid-template-columns: 1fr;
-    justify-items: start;
+    gap: 0.7rem;
+    grid-template-columns: 3.25rem 5.5rem minmax(0, 1fr);
+    padding: 0.7rem;
   }
 
   .winner-position {
@@ -2826,6 +2991,11 @@ pre {
     padding-left: 0;
     padding-top: 0.85rem;
     width: 100%;
+  }
+
+  .winner-meta dd {
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
   }
 
   .analysis-mini-stats {
@@ -2843,7 +3013,33 @@ pre {
   }
 
   .analysis-radar {
-    height: 18rem;
+    height: auto;
+    width: 100%;
+  }
+
+  .analysis-footnote {
+    box-sizing: border-box;
+    font-size: 0.72rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+    width: 100%;
+  }
+
+  .feature-analysis-card {
+    padding: 0.8rem;
+  }
+
+  .feature-analysis-card dl {
+    gap: 0.65rem;
+    margin-top: 0.8rem;
+  }
+
+  .feature-analysis-card dt {
+    font-size: 0.72rem;
+  }
+
+  .feature-analysis-card dd {
+    font-size: 0.75rem;
   }
 
   .group-driver-list div,
