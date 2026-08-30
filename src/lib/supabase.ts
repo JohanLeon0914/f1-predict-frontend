@@ -1,6 +1,12 @@
 import type { SavedPrediction } from "./types";
 import { supabaseAuth } from "./supabase-auth";
 
+type PredictionQuotaRequest = {
+  race_id: number;
+  simulation_count: number;
+  source: "predicts" | "races";
+};
+
 async function readJson<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
@@ -9,14 +15,38 @@ async function readJson<T>(response: Response): Promise<T> {
   return payload as T;
 }
 
-export async function savePrediction(prediction: SavedPrediction) {
+async function getAuthorizationHeaders(): Promise<Record<string, string>> {
   const session = await supabaseAuth?.auth.getSession();
   const accessToken = session?.data.session?.access_token;
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+}
+
+export async function checkPredictionQuota(payload: PredictionQuotaRequest) {
+  const response = await fetch("/api/predictions/quota", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await getAuthorizationHeaders()),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return readJson<{
+    allowed: boolean;
+    detail?: string;
+    is_premium: boolean;
+    limit: number | null;
+    remaining: number | null;
+    used: number;
+  }>(response);
+}
+
+export async function savePrediction(prediction: SavedPrediction) {
   const response = await fetch("/api/predictions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...(await getAuthorizationHeaders()),
     },
     body: JSON.stringify({
       ...prediction,
@@ -39,11 +69,9 @@ export async function savePrediction(prediction: SavedPrediction) {
 }
 
 export async function loadSavedPredictions(): Promise<SavedPrediction[]> {
-  const session = await supabaseAuth?.auth.getSession();
-  const accessToken = session?.data.session?.access_token;
   const response = await fetch("/api/predictions", {
     cache: "no-store",
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    headers: await getAuthorizationHeaders(),
   });
 
   if (response.status === 204) {

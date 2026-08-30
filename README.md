@@ -32,6 +32,10 @@ Copia `.env.example` a `.env.local` y ajusta valores:
 ML_API_BASE_URL=http://localhost:8000
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-7540259599534777
+NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP=
+NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE=
+NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE=
 ```
 
 No uses `sb_secret_*` en el frontend. Esa llave es solo para backend, server functions o workers.
@@ -50,3 +54,30 @@ supabase/migrations/20260828161000_create_prediction_tables.sql
 ```
 
 La migracion habilita RLS para que cada usuario autenticado solo pueda insertar y leer sus propias predicciones.
+
+Usuarios premium:
+
+```sql
+insert into public.premium_users (email) values ('usuario@gmail.com');
+```
+
+Los usuarios premium no ven anuncios y no tienen los limites del plan gratuito.
+
+## Google AdSense
+
+Variables:
+
+```bash
+NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-7540259599534777
+NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP=
+NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE=
+NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE=
+```
+
+En AdSense:
+
+1. Agrega y verifica el dominio de la app.
+2. Crea unidades de anuncio Display responsive para cada ubicacion.
+3. Copia el publisher ID (`ca-pub-...`) en `NEXT_PUBLIC_ADSENSE_CLIENT`.
+4. Copia cada `data-ad-slot` en su variable correspondiente.
+5. Publica el sitio en un dominio aprobado; en localhost normalmente no veras anuncios reales.

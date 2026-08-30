@@ -4,6 +4,7 @@ import type {
   PredictionRequest,
   PredictionResponse,
 } from "./types";
+import { supabaseAuth } from "./supabase-auth";
 
 const LOCAL_DATA_CACHE_KEY = "f1-local-data-cache-v1";
 const LOCAL_DATA_CACHE_TTL = 30 * 60 * 1000;
@@ -36,10 +37,16 @@ export async function getMetrics(): Promise<Record<string, unknown>> {
 export async function predictRace(
   payload: PredictionRequest,
 ): Promise<PredictionResponse> {
+  const session = await supabaseAuth?.auth.getSession();
+  const accessToken = session?.data.session?.access_token;
+
   return readJson<PredictionResponse>(
     await fetch("/api/ml/predict", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify(payload),
     }),
   );

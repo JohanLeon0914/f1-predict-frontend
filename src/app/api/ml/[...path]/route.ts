@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  getAuthenticatedUser,
+  getMonthlyRacePredictionCount,
+  isPremiumUser,
+} from "@/lib/supabase-server";
 
 const API_BASE_URL = process.env.ML_API_BASE_URL ?? "http://localhost:8000";
+const FREE_MONTHLY_RACE_LIMIT = 3;
 
-async function proxy(request: NextRequest, path: string[]) {
+async function proxy(request: NextRequest, path: string[], bodyOverride?: string) {
   const target = `${API_BASE_URL}/${path.join("/")}${request.nextUrl.search}`;
   const body =
     request.method === "GET" || request.method === "HEAD"
       ? undefined
-      : await request.text();
+      : bodyOverride ?? await request.text();
 
   try {
     const response = await fetch(target, {
@@ -53,5 +59,37 @@ export async function POST(
   context: RouteContext<"/api/ml/[...path]">,
 ) {
   const { path } = await context.params;
+
+  if (path.join("/") === "predict") {
+    const { error, supabase, user } = await getAuthenticatedUser(request);
+
+    if (!supabase) {
+      return NextResponse.json({ detail: "Supabase no esta configurado." }, { status: 503 });
+    }
+
+    if (error || !user) {
+      return NextResponse.json({ detail: "Debes iniciar sesion para hacer predicciones." }, { status: 401 });
+    }
+
+    const body = await request.text();
+    const payload = JSON.parse(body) as { race_id?: number };
+    const raceId = Number(payload.race_id);
+    if (!raceId) {
+      return NextResponse.json({ detail: "Race invalida." }, { status: 400 });
+    }
+
+    const isPremium = await isPremiumUser(supabase, user.email);
+    const used = await getMonthlyRacePredictionCount(supabase, user.id, raceId);
+
+    if (!isPremium && used >= FREE_MONTHLY_RACE_LIMIT) {
+      return NextResponse.json(
+        { detail: "Llegaste al limite de 3 predicciones por carrera este mes." },
+        { status: 403 },
+      );
+    }
+
+    return proxy(request, path, body);
+  }
+
   return proxy(request, path);
 }

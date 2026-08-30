@@ -9,7 +9,7 @@ import {
 } from "@/lib/f1-ranker-api";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 import { useAuth } from "@/components/AuthProvider";
-import { ensureGuestId, savePrediction } from "@/lib/supabase";
+import { checkPredictionQuota, ensureGuestId, savePrediction } from "@/lib/supabase";
 import type {
   LocalF1Data,
   ParticipantRequest,
@@ -101,7 +101,7 @@ function buildBlankRoster(data: LocalF1Data): ParticipantRequest[] {
 }
 
 export function RaceSimulator({ mode, selectedRace }: Props) {
-  const { loading: authLoading, user } = useAuth();
+  const { loading: authLoading, premiumLoading, user } = useAuth();
   const [data, setData] = useState<LocalF1Data | null>(null);
   const [raceId, setRaceId] = useState(selectedRace ? String(selectedRace.raceId) : "");
   const [circuitId, setCircuitId] = useState(selectedRace ? String(selectedRace.circuitId) : "");
@@ -187,7 +187,7 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
   }
 
   async function submit() {
-    if (authLoading) return;
+    if (authLoading || premiumLoading) return;
 
     if (!user) {
       setShowAuthModal(true);
@@ -220,6 +220,12 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
     try {
       const runs = [];
       const total = Math.min(Math.max(simulationCount, 1), 100);
+      await checkPredictionQuota({
+        race_id: payload.race_id,
+        simulation_count: total,
+        source: mode === "race" ? "races" : "predicts",
+      });
+
       for (let index = 0; index < total; index += 1) {
         const prediction = await predictRace(payload);
         runs.push(prediction);
@@ -328,7 +334,7 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
           >
             Add driver
           </button>
-          <button className="button-primary" disabled={running || authLoading} onClick={submit} type="button">
+          <button className="button-primary" disabled={running || authLoading || premiumLoading} onClick={submit} type="button">
             {running ? `Running ${progress}/${simulationCount}` : "Run simulation"}
           </button>
         </div>

@@ -15,6 +15,8 @@ import { isSupabaseConfigured, supabaseAuth } from "@/lib/supabase-auth";
 type AuthContextValue = {
   user: User | null;
   loading: boolean;
+  premiumLoading: boolean;
+  isPremium: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
@@ -25,6 +27,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [premiumLoading, setPremiumLoading] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,6 +62,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (!user || !supabaseAuth) {
+      Promise.resolve().then(() => {
+        if (!mounted) return;
+        setIsPremium(false);
+        setPremiumLoading(false);
+      });
+      return () => {
+        mounted = false;
+      };
+    }
+
+    Promise.resolve()
+      .then(() => {
+        if (mounted) setPremiumLoading(true);
+        return supabaseAuth?.auth.getSession();
+      })
+      .then((sessionResult) =>
+        fetch("/api/account/me", {
+          cache: "no-store",
+          headers: sessionResult?.data.session?.access_token
+            ? { Authorization: `Bearer ${sessionResult.data.session.access_token}` }
+            : {},
+        }),
+      )
+      .then((response) => response.json())
+      .then((profile) => {
+        if (!mounted) return;
+        setIsPremium(Boolean(profile?.is_premium));
+      })
+      .catch(() => {
+        if (mounted) setIsPremium(false);
+      })
+      .finally(() => {
+        if (mounted) setPremiumLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
   const signInWithGoogle = useCallback(async () => {
     setError(null);
@@ -97,11 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       loading,
+      premiumLoading,
+      isPremium,
       error,
       signInWithGoogle,
       signOutUser,
     }),
-    [error, loading, signInWithGoogle, signOutUser, user],
+    [error, isPremium, loading, premiumLoading, signInWithGoogle, signOutUser, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

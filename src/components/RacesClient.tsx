@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 import { useAuth } from "@/components/AuthProvider";
+import { GoogleAdSlot } from "@/components/GoogleAdSlot";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
   getHealth,
@@ -12,7 +13,7 @@ import {
   getMetrics,
   predictRace,
 } from "@/lib/f1-ranker-api";
-import { ensureGuestId, savePrediction } from "@/lib/supabase";
+import { checkPredictionQuota, ensureGuestId, savePrediction } from "@/lib/supabase";
 import type {
   DriverOption,
   LocalF1Data,
@@ -43,6 +44,12 @@ const steps: Array<{ id: Step; title: string; copy: string }> = [
   { id: 2, title: "Drivers & prediction", copy: "Configure and run the simulation" },
   { id: 3, title: "Results", copy: "Review rankings and metrics" },
 ];
+
+const adsenseSlots = {
+  racesTop: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP,
+  racesInline: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE,
+  dashboardRectangle: process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE,
+};
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -165,7 +172,7 @@ function DriverHelmet({ driver }: { driver?: DriverOption }) {
 }
 
 export function RacesClient() {
-  const { loading: authLoading, user } = useAuth();
+  const { isPremium, loading: authLoading, premiumLoading, user } = useAuth();
   const searchParams = useSearchParams();
   const requestedRaceId = searchParams.get("race");
   const [step, setStep] = useState<Step>(1);
@@ -257,7 +264,7 @@ export function RacesClient() {
   }
 
   async function runPrediction() {
-    if (authLoading) return;
+    if (authLoading || premiumLoading) return;
 
     if (!user) {
       setShowAuthModal(true);
@@ -268,6 +275,9 @@ export function RacesClient() {
       setError("Choose a race before running a prediction.");
       return;
     }
+
+    const total = isPremium ? Math.min(Math.max(simulationCount, 1), 100) : 1;
+    if (!isPremium && simulationCount !== 1) setSimulationCount(1);
 
     const cleanParticipants = participants.filter(
       (participant) => participant.driverId && participant.constructorId,
@@ -294,7 +304,12 @@ export function RacesClient() {
     setProgress(0);
 
     try {
-      const total = Math.min(Math.max(simulationCount, 1), 100);
+      await checkPredictionQuota({
+        race_id: selectedRace.raceId,
+        simulation_count: total,
+        source: "races",
+      });
+
       const runs: PredictionResponse[] = [];
 
       for (let index = 0; index < total; index += 1) {
@@ -368,6 +383,12 @@ export function RacesClient() {
         ))}
       </div>
 
+      <GoogleAdSlot
+        className="ad-wide"
+        format="horizontal"
+        slot={adsenseSlots.racesTop}
+      />
+
       {error ? <div className="wizard-error">{error}</div> : null}
 
       <section className={`wizard-pane ${step === 1 ? "active" : ""}`} hidden={step !== 1}>
@@ -424,6 +445,12 @@ export function RacesClient() {
             ))}
           </div>
 
+          <GoogleAdSlot
+            className="ad-wide ad-in-panel"
+            format="horizontal"
+            slot={adsenseSlots.racesInline}
+          />
+
           <div className="wizard-actions wizard-actions-hidden">
             <button
               className="button-primary"
@@ -458,22 +485,28 @@ export function RacesClient() {
             <label className="field">
               Simulations
               <input
+                disabled={!isPremium}
                 inputMode="numeric"
                 maxLength={3}
                 pattern="[0-9]*"
                 type="text"
-                value={simulationCount}
+                value={isPremium ? simulationCount : 1}
                 onChange={(event) => setSimulationCount(normalizeSimulationCount(event.target.value))}
               />
             </label>
+            {!isPremium ? (
+              <div className="quota-note">
+                Free plan: 1 simulation and 3 predictions per race each month.
+              </div>
+            ) : null}
             <button className="button-secondary" onClick={resetRoster} type="button">
               Reset grid
             </button>
             <button className="button-secondary" onClick={() => setStep(1)} type="button">
               Change race
             </button>
-            <button className="button-primary" disabled={running || authLoading} onClick={runPrediction} type="button">
-              {running ? `Running ${progress}/${simulationCount}` : "Run prediction"} <span>→</span>
+            <button className="button-primary" disabled={running || authLoading || premiumLoading} onClick={runPrediction} type="button">
+              {running ? `Running ${progress}/${isPremium ? simulationCount : 1}` : "Run prediction"} <span>→</span>
             </button>
           </div>
 
@@ -616,7 +649,7 @@ export function RacesClient() {
               <p className="tech-label">STEP 03</p>
               <h1>Simulation results</h1>
               <p>
-                {selectedRace?.name ?? "Race"} · {simulationCount} simulations
+                {selectedRace?.name ?? "Race"} · {isPremium ? simulationCount : 1} simulations
                 {savedMode ? ` · Saved to ${savedMode}` : ""}
               </p>
             </div>
@@ -637,12 +670,19 @@ export function RacesClient() {
           </div>
 
           {showAnalysisDashboard && analysisResponse ? (
-            <PredictionAnalysisDashboard
-              constructors={data?.constructors ?? []}
-              drivers={data?.drivers ?? []}
-              race={selectedRace}
-              response={analysisResponse}
-            />
+            <>
+              <GoogleAdSlot
+                className="ad-dashboard"
+                format="rectangle"
+                slot={adsenseSlots.dashboardRectangle}
+              />
+              <PredictionAnalysisDashboard
+                constructors={data?.constructors ?? []}
+                drivers={data?.drivers ?? []}
+                race={selectedRace}
+                response={analysisResponse}
+              />
+            </>
           ) : (
           <div className="results-grid">
             <article className="winner-card">
@@ -689,6 +729,12 @@ export function RacesClient() {
                 <div><dt>Top 10 accuracy</dt><dd>{top10?.toFixed(2) ?? "-"}</dd></div>
               </dl>
             </article>
+
+            <GoogleAdSlot
+              className="ad-results"
+              format="rectangle"
+              slot={adsenseSlots.dashboardRectangle}
+            />
 
             <article className="metrics-card">
               <h3>Simulation info</h3>
