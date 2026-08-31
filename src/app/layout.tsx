@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     "google-adsense-account": adsenseClient,
   },
   icons: {
-    icon: "/icono-logo.png",
-    shortcut: "/icono-logo.png",
-    apple: "/icono-logo.png",
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
