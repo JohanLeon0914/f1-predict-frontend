@@ -34,7 +34,7 @@ export function SiteHeader() {
           <Image
             alt="Apex Predictor"
             className="brand-logo-image"
-            height={96}
+            height={44}
             priority
             src="/icono-logo.png"
             width={132}

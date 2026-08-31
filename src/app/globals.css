@@ -117,15 +117,16 @@ button:disabled {
 
 .brand-logo {
   align-items: center;
+  aspect-ratio: 3 / 1;
   display: inline-flex;
-  height: 4rem;
+  height: auto;
   overflow: visible;
   width: 8.25rem;
 }
 
 .brand-logo-image {
   display: block;
-  height: 100%;
+  height: auto;
   object-fit: contain;
   width: 100%;
 }
@@ -2328,7 +2329,7 @@ pre {
   }
 
   .brand-logo {
-    height: 3rem;
+    height: auto;
     width: 6.25rem;
   }
 
