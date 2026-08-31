@@ -8,6 +8,9 @@ import { adsenseClient } from "@/lib/adsense";
 export const metadata: Metadata = {
   title: "Apex Predictor",
   description: "F1 race predictions powered by a local machine-learning model.",
+  other: {
+    "google-adsense-account": adsenseClient,
+  },
   icons: {
     icon: "/icono-logo.png",
     shortcut: "/icono-logo.png",

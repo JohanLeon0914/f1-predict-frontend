@@ -33,7 +33,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    let authEventReceived = false;
 
     if (!supabaseAuth) {
       Promise.resolve().then(() => {
@@ -48,14 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabaseAuth.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
-      authEventReceived = true;
       setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    supabaseAuth.auth.getUser().then(({ data }) => {
-      if (!mounted) return;
-      if (!authEventReceived) setUser(data.user);
       setLoading(false);
     });
 
