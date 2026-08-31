@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { adsenseClient } from "@/lib/adsense";
 
 export const metadata: Metadata = {
-  title: "Apex Predictor",
+  title: "GRDX1",
   description: "F1 race predictions powered by a local machine-learning model.",
   other: {
     "google-adsense-account": adsenseClient,

@@ -283,14 +283,14 @@ export function LandingPage() {
 
       <footer className="landing-footer">
         <Link href="/" className="brand-mark">
-          <span>Apex</span>
-          <span>Predictor</span>
+          <span>GRDX1</span>
+          <span>Motorsports intelligence</span>
         </Link>
         <nav>
           <Link href="/races">Races</Link>
           <Link href="/#about">About</Link>
         </nav>
-        <p>© 2026 Apex Predictor</p>
+        <p>© 2026 GRDX1</p>
       </footer>
     </div>
   );

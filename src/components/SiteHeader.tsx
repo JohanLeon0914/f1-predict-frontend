@@ -30,9 +30,9 @@ export function SiteHeader() {
   return (
     <header className={`site-header ${scrolled ? "site-header-scrolled" : ""}`}>
       <div className="site-header-inner mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5">
-        <Link href="/" className="brand-logo" aria-label="Apex Predictor home">
+        <Link href="/" className="brand-logo" aria-label="GRDX1 home">
           <Image
-            alt="Apex Predictor"
+            alt="GRDX1"
             className="brand-logo-image"
             height={44}
             priority
