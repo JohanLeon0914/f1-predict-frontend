@@ -31,7 +31,7 @@ export function AuthRequiredModal({ open, onClose }: Props) {
         <p className="tech-label">LOGIN REQUIRED</p>
         <h2 id="auth-required-title">Sign in to run predictions</h2>
         <p>
-          You need a Supabase session before the model can generate and save a race prediction.
+          You need a session before the model can generate and save a race prediction.
         </p>
         <button className="google-auth-button" onClick={signInWithGoogle} type="button">
           <span className="google-mark" aria-hidden="true">G</span>
