@@ -30,7 +30,6 @@ Copia `.env.example` a `.env.local` y ajusta valores:
 
 ```bash
 ML_API_BASE_URL=http://localhost:8000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-7540259599534777
@@ -41,14 +40,8 @@ NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE=
 
 No uses `sb_secret_*` en el frontend. Esa llave es solo para backend, server functions o workers.
 
-Para el login, habilita Google en Supabase Auth y configura las URLs en
-Authentication > URL Configuration:
-
-- `Site URL`: la URL publica de la app desplegada, por ejemplo `https://tu-dominio.com`.
-- `Redirect URLs`: agrega `https://tu-dominio.com/races` y, si usas previews, sus URLs correspondientes.
-
-En el entorno de deploy define `NEXT_PUBLIC_APP_URL` con esa misma URL publica, sin una ruta final,
-por ejemplo `https://tu-dominio.com`. Si se omite, el frontend usa el dominio desde el que se abrio.
+Para el login, habilita Google en Supabase Auth y agrega la URL publica de tu app en
+Authentication > URL Configuration.
 
 ## Supabase
 

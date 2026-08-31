@@ -24,16 +24,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function getAppOrigin() {
-  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-
-  if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
-  }
-
-  return window.location.origin;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -129,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error: authError } = await supabaseAuth.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${getAppOrigin()}/races`,
+          redirectTo: `${window.location.origin}/races`,
         },
       });
       if (authError) throw authError;
