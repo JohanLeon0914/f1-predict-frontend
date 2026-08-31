@@ -28,7 +28,18 @@ function getAppOrigin() {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
 
   if (configuredUrl) {
-    return configuredUrl.replace(/\/$/, "");
+    try {
+      const configuredOrigin = new URL(configuredUrl).origin;
+      const isLocalOrigin = ["localhost", "127.0.0.1", "[::1]"].includes(
+        new URL(configuredOrigin).hostname,
+      );
+
+      if (process.env.NODE_ENV !== "production" || !isLocalOrigin) {
+        return configuredOrigin;
+      }
+    } catch {
+      // Use the browser origin when the optional URL is invalid.
+    }
   }
 
   return window.location.origin;
