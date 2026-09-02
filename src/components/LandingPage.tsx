@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CircuitSilhouette } from "@/components/CircuitSilhouette";
 import { getLocalF1Data } from "@/lib/f1-ranker-api";
 import type { Race } from "@/lib/types";
 
@@ -20,11 +21,10 @@ const steps = [
   ["04", "EXPLORE RESULTS"],
 ];
 
-const trackPaths = [
-  "M19 53 C48 12, 93 7, 124 28 C156 50, 159 73, 121 74 C88 75, 79 52, 48 66 C32 73, 14 70, 19 53Z",
-  "M18 61 C12 35, 39 16, 68 25 C94 33, 96 53, 119 55 C146 58, 162 25, 176 40 C187 52, 169 75, 142 72 C111 69, 93 84, 61 75 C39 69, 24 77, 18 61Z",
-  "M25 25 C43 8, 77 18, 81 38 C85 59, 111 64, 133 52 C153 41, 172 50, 163 67 C153 86, 119 77, 94 72 C65 66, 28 75, 20 55 C16 44, 17 33, 25 25Z",
-  "M20 46 C31 20, 59 14, 79 29 C98 43, 113 28, 135 22 C159 15, 175 33, 161 52 C145 73, 111 65, 91 59 C65 51, 48 81, 27 68 C18 62, 16 54, 20 46Z",
+const socialLinks = [
+  ["TikTok", "https://www.tiktok.com/@grdx1motorsport"],
+  ["Instagram", "https://www.instagram.com/grdx1_motorsports/"],
+  ["YouTube", "https://www.youtube.com/@GRDX1_MOTORSPORTS"],
 ];
 
 const countryCodes: Record<string, string> = {
@@ -116,13 +116,13 @@ export function LandingPage() {
         <div className="hero-grid" />
 
         <div className="hero-content">
-          <p className="tech-label">ML RACE INTELLIGENCE</p>
+          <p className="tech-label">RACE INTELLIGENCE</p>
           <h1>
             PREDICT.
             <br />
             ANALYZE.
             <br />
-            <span>WIN.</span>
+            <span>EVOLVE.</span>
           </h1>
           <p className="hero-copy">AI-powered motorsport predictions.</p>
           <Link className="red-cta" href="/races">
@@ -147,6 +147,34 @@ export function LandingPage() {
         <h2 className="reveal">Predict what happens next.</h2>
       </section>
 
+      <section className="landing-section about-contact-section" id="who-we-are">
+        <div className="about-copy reveal">
+          <p className="tech-label">WHO WE ARE</p>
+          <h2>We are race fans building the tools we wanted to use.</h2>
+          <p>
+            GRDX1 is a sports analytics app focused on Formula 1 right now. We dig into race data,
+            driver form, circuits, and model signals to make the weekend easier to read. F1 is our
+            starting grid, but the plan is to branch into other sports as we grow.
+          </p>
+        </div>
+
+        <div className="contact-panel reveal" id="contact">
+          <p className="tech-label">CONTACT</p>
+          <h2>Come hang out with us.</h2>
+          <p>
+            We post race takes, updates, experiments, and whatever we are building next. The fastest
+            way to reach us is through our socials.
+          </p>
+          <div className="social-links" aria-label="GRDX1 social links">
+            {socialLinks.map(([label, href]) => (
+              <a href={href} key={label} rel="noreferrer" target="_blank">
+                {label} <span>↗</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="landing-section upcoming-section">
         <div className="section-heading reveal">
             <p className="tech-label">UPCOMING RACES</p>
@@ -167,11 +195,9 @@ export function LandingPage() {
                 <Link className="event-tile reveal" href={`/races?race=${race.raceId}`} key={race.raceId}>
                   <div>
                     <span>{index === 0 ? "NEXT" : "OPEN"}</span>
-                    <strong>{race.name.replace(/\s+Grand Prix$/u, "")}</strong>
+                    <strong>{race.name}</strong>
                   </div>
-                  <svg viewBox="0 0 180 86" role="img" aria-label={`${race.name} circuit outline`}>
-                    <path d={trackPaths[index % trackPaths.length]} />
-                  </svg>
+                  <CircuitSilhouette className="event-track" race={race} />
                   <footer>
                     <b>{formatLandingDate(race.date)}</b>
                     <span>{countryCode(race.circuit?.country)}</span>
@@ -288,8 +314,15 @@ export function LandingPage() {
         </Link>
         <nav>
           <Link href="/races">Races</Link>
-          <Link href="/#about">About</Link>
+          <Link href="/#who-we-are">About & Contact</Link>
         </nav>
+        <div className="footer-socials" aria-label="GRDX1 social links">
+          {socialLinks.map(([label, href]) => (
+            <a href={href} key={label} rel="noreferrer" target="_blank">
+              {label}
+            </a>
+          ))}
+        </div>
         <p>© 2026 GRDX1</p>
       </footer>
     </div>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { CircuitSilhouette } from "@/components/CircuitSilhouette";
 import { useAuth } from "@/components/AuthProvider";
 import { GoogleAdSlot } from "@/components/GoogleAdSlot";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
@@ -134,20 +135,13 @@ function getMetric(metrics: Record<string, unknown> | null, split: string, key: 
   return typeof value === "number" ? value : null;
 }
 
-const trackPaths = [
-  "M18 57 C29 25, 67 15, 91 31 C107 42, 111 63, 139 54 C166 46, 179 67, 153 78 C125 90, 98 68, 72 72 C45 77, 8 83, 18 57Z",
-  "M24 63 C19 33, 51 21, 74 30 C94 38, 93 10, 117 17 C151 27, 160 62, 136 73 C112 84, 94 58, 63 72 C43 80, 27 77, 24 63Z",
-  "M17 45 C31 19, 72 20, 88 42 C102 61, 137 18, 162 38 C181 54, 162 79, 132 71 C105 64, 91 78, 58 72 C28 66, 8 62, 17 45Z",
-  "M33 69 C13 48, 33 20, 62 24 C87 27, 86 48, 105 52 C130 58, 139 22, 162 31 C181 39, 177 67, 151 74 C120 82, 102 64, 75 71 C55 76, 43 79, 33 69Z",
-  "M20 63 C30 40, 49 30, 73 35 C94 39, 94 17, 119 20 C145 24, 169 46, 156 64 C143 82, 112 65, 86 72 C55 81, 8 91, 20 63Z",
-];
-
-function CircuitOutline({ active = false, seed = 0 }: { active?: boolean; seed?: number }) {
-  const path = trackPaths[Math.abs(seed) % trackPaths.length];
+function CircuitOutline({ active = false, race }: { active?: boolean; race: Race }) {
   return (
-    <svg className={active ? "wizard-track active" : "wizard-track"} viewBox="0 0 190 92" aria-hidden="true">
-      <path d={path} />
-    </svg>
+    <CircuitSilhouette
+      active={active}
+      className={active ? "wizard-track active" : "wizard-track"}
+      race={race}
+    />
   );
 }
 
@@ -432,7 +426,7 @@ export function RacesClient() {
               >
                 <div className="race-card-index">{String(index + 1).padStart(2, "0")}</div>
                 <span className="race-flag" aria-label={`${race.circuit?.country ?? "Unknown"} flag`}>{getCountryFlag(race.circuit?.country)}</span>
-                <CircuitOutline active={race.raceId === selectedRaceId} seed={race.circuitId} />
+                <CircuitOutline active={race.raceId === selectedRaceId} race={race} />
                 <div className="race-card-copy">
                   <strong>{race.name}</strong>
                   <span>{race.circuit?.name ?? "Circuit to be confirmed"}</span>
@@ -474,7 +468,7 @@ export function RacesClient() {
                 {selectedRace?.circuit?.name ?? "Circuit"} · {selectedRace ? formatDate(selectedRace.date) : "Date"}
               </p>
             </div>
-            <CircuitOutline active seed={selectedRace?.circuitId ?? 0} />
+            {selectedRace ? <CircuitOutline active race={selectedRace} /> : null}
             <div className="context-stat">
               <span>Round</span>
               <b>{selectedRace?.round ?? "-"}</b>

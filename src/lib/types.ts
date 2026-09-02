@@ -152,6 +152,7 @@ export type Race = {
   date: string;
   time: string | null;
   status: "future" | "past";
+  circuitImageUrl?: string | null;
   circuit?: Circuit;
 };
 

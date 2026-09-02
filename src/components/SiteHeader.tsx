@@ -9,7 +9,7 @@ import { useAuth } from "@/components/AuthProvider";
 const navItems = [
   { href: "/races", label: "Races", activePath: "/races" },
   { href: "/#how-it-works", label: "How it works", activePath: null },
-  { href: "/#about", label: "About", activePath: null },
+  { href: "/#who-we-are", label: "About & Contact", activePath: null },
 ];
 
 export function SiteHeader() {

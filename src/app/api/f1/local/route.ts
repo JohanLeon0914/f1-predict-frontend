@@ -54,6 +54,13 @@ type OpenF1Session = {
   date_start?: string;
 };
 
+type OpenF1Meeting = {
+  circuit_image?: string;
+  country_name?: string;
+  date_end?: string;
+  meeting_name?: string;
+};
+
 type JolpicaDriver = {
   driverId: string;
   permanentNumber?: string;
@@ -207,6 +214,37 @@ async function readOpenF1RaceDrivers(races: Race[]) {
   return output;
 }
 
+async function readOpenF1CircuitImages(races: Race[]) {
+  const output = new Map<number, string>();
+  try {
+    const years = Array.from(new Set(races.map((race) => race.year)));
+    const meetings = (
+      await Promise.all(years.map(async (year) => {
+        const response = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(2500),
+        });
+        return response.ok ? ((await response.json()) as OpenF1Meeting[]) : [];
+      }))
+    ).flat();
+
+    for (const race of races) {
+      const meeting = meetings.find((item) => {
+        const sameDate = item.date_end?.slice(0, 10) === race.date;
+        const sameName = item.meeting_name === race.name;
+        const sameCountry =
+          item.country_name === race.circuit?.country ||
+          (race.circuit?.country === "USA" && item.country_name === "United States");
+        return Boolean(item.circuit_image && (sameDate || sameName || (sameCountry && sameDate)));
+      });
+      if (meeting?.circuit_image) output.set(race.raceId, meeting.circuit_image);
+    }
+  } catch {
+    // Circuit images are visual enrichment; inline SVG outlines remain the fallback.
+  }
+  return output;
+}
+
 async function readJolpicaDriverInfo(year: number) {
   try {
     const response = await fetch(
@@ -314,10 +352,14 @@ export async function GET() {
     );
     const jolpicaByNumber = await readJolpicaDriverInfo(latestDatasetYear);
     const futureRaces = races.filter((race) => race.status === "future");
-    const [jolpicaRaceDrivers, openF1RaceDrivers] = await Promise.all([
+    const [jolpicaRaceDrivers, openF1RaceDrivers, circuitImagesByRaceId] = await Promise.all([
       readJolpicaRaceDrivers(futureRaces),
       readOpenF1RaceDrivers(futureRaces),
+      readOpenF1CircuitImages(futureRaces),
     ]);
+    for (const race of futureRaces) {
+      race.circuitImageUrl = circuitImagesByRaceId.get(race.raceId) ?? null;
+    }
     const raceApiDrivers = { ...openF1RaceDrivers, ...jolpicaRaceDrivers };
 
     const latestRaceId = Math.max(
