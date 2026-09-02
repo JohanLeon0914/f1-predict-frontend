@@ -248,9 +248,38 @@ export function RacesClient() {
     setParticipants((current) => current.filter((_, itemIndex) => itemIndex !== index));
   }
 
-  function resetRoster() {
-    if (!data) return;
-    setParticipants(data.participantsByRace[String(selectedRaceId)] ?? buildBaselineRoster(data));
+  const rosterFieldsCleared =
+    participants.length > 0 &&
+    participants.every(
+      (participant) =>
+        participant.grid === null &&
+        participant.qualifying_position === null &&
+        participant.q1 === null &&
+        participant.q2 === null &&
+        participant.q3 === null,
+    );
+
+  function toggleRosterData() {
+    if (rosterFieldsCleared) {
+      if (!data) return;
+      const restored =
+        selectedRaceId !== null
+          ? data.participantsByRace[String(selectedRaceId)] ?? buildBaselineRoster(data)
+          : buildBaselineRoster(data);
+      setParticipants(restored);
+    } else {
+      setParticipants((current) =>
+        current.map((participant) => ({
+          ...participant,
+          grid: null,
+          qualifying_position: null,
+          q1: null,
+          q2: null,
+          q3: null,
+        })),
+      );
+    }
+
     setResult([]);
     setAnalysisResponse(null);
     setShowAnalysisDashboard(false);
@@ -493,8 +522,8 @@ export function RacesClient() {
                 Free plan: 1 simulation and 3 predictions per race each month.
               </div>
             ) : null}
-            <button className="button-secondary" onClick={resetRoster} type="button">
-              Reset grid
+            <button className="button-secondary" onClick={toggleRosterData} type="button">
+              {rosterFieldsCleared ? "Restore data" : "Reset grid"}
             </button>
             <button className="button-secondary" onClick={() => setStep(1)} type="button">
               Change race
