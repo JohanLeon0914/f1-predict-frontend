@@ -1,5 +1,5 @@
 export const siteName = "GRDX1";
-export const contactEmail = "pexpredictorcontact@gmail.com";
+export const contactEmail = "apexpredictorcontact@gmail.com";
 
 export const socialLinks = [
   { label: "TikTok", href: "https://www.tiktok.com/@grdx1motorsport" },
