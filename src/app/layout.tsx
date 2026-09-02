@@ -2,14 +2,32 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { adsenseClient } from "@/lib/adsense";
+import { absoluteUrl, getSiteOrigin, siteName } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "GRDX1",
-  description: "F1 race predictions powered by a local machine-learning model.",
+  metadataBase: new URL(getSiteOrigin()),
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description:
+    "GRDX1 publishes Formula 1 machine-learning race predictions, public analysis pages, and motorsport data stories.",
   other: {
     "google-adsense-account": adsenseClient,
+  },
+  openGraph: {
+    description:
+      "GRDX1 publishes Formula 1 machine-learning race predictions, public analysis pages, and motorsport data stories.",
+    siteName,
+    title: siteName,
+    type: "website",
+    url: absoluteUrl("/"),
+  },
+  alternates: {
+    canonical: absoluteUrl("/"),
   },
   icons: {
     icon: "/favicon.png",
@@ -31,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <AuthProvider>
           <SiteHeader />
           <main>{children}</main>
+          <SiteFooter />
         </AuthProvider>
       </body>
     </html>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CircuitSilhouette } from "@/components/CircuitSilhouette";
 import { getLocalF1Data } from "@/lib/f1-ranker-api";
+import { contactEmail, socialLinks } from "@/lib/site";
 import type { Race } from "@/lib/types";
 
 const features = [
@@ -19,12 +20,6 @@ const steps = [
   ["02", "ANALYZE THE DATA"],
   ["03", "GENERATE PREDICTION"],
   ["04", "EXPLORE RESULTS"],
-];
-
-const socialLinks = [
-  ["TikTok", "https://www.tiktok.com/@grdx1motorsport"],
-  ["Instagram", "https://www.instagram.com/grdx1_motorsports/"],
-  ["YouTube", "https://www.youtube.com/@GRDX1_MOTORSPORTS"],
 ];
 
 const countryCodes: Record<string, string> = {
@@ -150,11 +145,17 @@ export function LandingPage() {
       <section className="landing-section about-contact-section" id="who-we-are">
         <div className="about-copy reveal">
           <p className="tech-label">WHO WE ARE</p>
-          <h2>We are race fans building the tools we wanted to use.</h2>
+          <h2>We are building the motorsport analysis tools we wanted to use.</h2>
           <p>
-            GRDX1 is a sports analytics app focused on Formula 1 right now. We dig into race data,
-            driver form, circuits, and model signals to make the weekend easier to read. F1 is our
-            starting grid, but the plan is to branch into other sports as we grow.
+            GRDX1 is an independent motorsport analytics project that develops machine-learning
+            models to analyze Formula 1 race data and generate data-driven race predictions. We dig
+            into race pace, driver form, circuits, and model signals to make each weekend easier to
+            read.
+          </p>
+          <p>
+            GRDX1 is an independent project and is not affiliated with Formula 1, the FIA, Formula
+            One Management, or any Formula 1 team. F1 is our starting grid, but the plan is to
+            branch into other sports as the project grows.
           </p>
         </div>
 
@@ -162,13 +163,16 @@ export function LandingPage() {
           <p className="tech-label">CONTACT</p>
           <h2>Come hang out with us.</h2>
           <p>
-            We post race takes, updates, experiments, and whatever we are building next. The fastest
-            way to reach us is through our socials.
+            For general questions, feedback, or business inquiries, reach out here:
           </p>
+          <p>
+            <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+          </p>
+          <p>We also post race takes, updates, experiments, and whatever we are building next.</p>
           <div className="social-links" aria-label="GRDX1 social links">
-            {socialLinks.map(([label, href]) => (
-              <a href={href} key={label} rel="noreferrer" target="_blank">
-                {label} <span>↗</span>
+            {socialLinks.map((item) => (
+              <a href={item.href} key={item.label} rel="noreferrer" target="_blank">
+                {item.label} <span>↗</span>
               </a>
             ))}
           </div>
@@ -307,24 +311,6 @@ export function LandingPage() {
         </Link>
       </section>
 
-      <footer className="landing-footer">
-        <Link href="/" className="brand-mark">
-          <span>GRDX1</span>
-          <span>Motorsports intelligence</span>
-        </Link>
-        <nav>
-          <Link href="/races">Races</Link>
-          <Link href="/#who-we-are">About & Contact</Link>
-        </nav>
-        <div className="footer-socials" aria-label="GRDX1 social links">
-          {socialLinks.map(([label, href]) => (
-            <a href={href} key={label} rel="noreferrer" target="_blank">
-              {label}
-            </a>
-          ))}
-        </div>
-        <p>© 2026 GRDX1</p>
-      </footer>
     </div>
   );
 }

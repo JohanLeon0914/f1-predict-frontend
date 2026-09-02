@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthProvider";
 
 const navItems = [
   { href: "/races", label: "Races", activePath: "/races" },
+  { href: "/analysis", label: "Analysis", activePath: "/analysis" },
   { href: "/#how-it-works", label: "How it works", activePath: null },
   { href: "/#who-we-are", label: "About & Contact", activePath: null },
 ];
@@ -41,17 +42,23 @@ export function SiteHeader() {
           />
         </Link>
         <nav className={`site-nav ${menuOpen ? "site-nav-open" : ""}`} id="mobile-navigation">
-          {navItems.map((item) => (
-            <Link
-              aria-current={item.activePath && pathname === item.activePath ? "page" : undefined}
-              className={`nav-link ${item.activePath && pathname === item.activePath ? "nav-link-active" : ""}`}
-              href={item.href}
-              key={item.href}
-              onClick={() => setMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              item.activePath !== null &&
+              (pathname === item.activePath || pathname.startsWith(`${item.activePath}/`));
+
+            return (
+              <Link
+                aria-current={isActive ? "page" : undefined}
+                className={`nav-link ${isActive ? "nav-link-active" : ""}`}
+                href={item.href}
+                key={item.href}
+                onClick={() => setMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="header-actions">
           {user ? (
