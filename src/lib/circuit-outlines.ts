@@ -8,6 +8,19 @@ export const fallbackCircuitOutline: CircuitOutline = {
   path: "M18 57 C29 25, 67 15, 91 31 C107 42, 111 63, 139 54 C166 46, 179 67, 153 78 C125 90, 98 68, 72 72 C45 77, 8 83, 18 57Z",
 };
 
+const circuitAssetRefs = new Set([
+  "albert_park", "americas", "bahrain", "baku", "catalunya", "hungaroring",
+  "interlagos", "jeddah", "losail", "marina_bay", "miami", "monaco", "monza",
+  "red_bull_ring", "rodriguez", "shanghai", "silverstone", "spa", "suzuka", "vegas",
+  "villeneuve", "yas_marina", "zandvoort",
+]);
+
+export function getCircuitAssetPath(circuitRef?: string | null) {
+  return circuitRef && circuitAssetRefs.has(circuitRef)
+    ? `/circuits/${circuitRef}.svg`
+    : null;
+}
+
 const circuitOutlinesByRef: Record<string, CircuitOutline> = {
   albert_park: {
     viewBox: "0 0 180 86",

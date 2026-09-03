@@ -1,7 +1,9 @@
 "use client";
 
-import { getCircuitOutline } from "@/lib/circuit-outlines";
+import Image from "next/image";
+import { getCircuitAssetPath, getCircuitOutline } from "@/lib/circuit-outlines";
 import type { Race } from "@/lib/types";
+import { useState } from "react";
 
 type CircuitSilhouetteProps = {
   active?: boolean;
@@ -14,21 +16,43 @@ type CircuitSilhouetteProps = {
 export function CircuitSilhouette({
   active = false,
   className,
+  imageClassName,
   race,
+  svgClassName,
 }: CircuitSilhouetteProps) {
   const outline = getCircuitOutline(race.circuit?.circuitRef);
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const circuitAssetPath = getCircuitAssetPath(race.circuit?.circuitRef);
+  const imageUrl = circuitAssetPath && circuitAssetPath !== failedImageUrl
+    ? circuitAssetPath
+    : null;
 
   return (
-    <svg
-      aria-label={`${race.name} circuit outline`}
-      className={className}
-      data-active={active ? "true" : undefined}
-      fill="none"
-      role="img"
-      viewBox={outline.viewBox}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d={outline.path} />
-    </svg>
+    <>
+      {imageUrl ? (
+        <Image
+          alt={`${race.name} circuit outline`}
+          className={imageClassName ?? className}
+          height={96}
+          onError={() => setFailedImageUrl(imageUrl)}
+          src={imageUrl}
+          unoptimized
+          width={180}
+        />
+      ) : null}
+      {!imageUrl ? (
+        <svg
+          aria-label={`${race.name} circuit outline`}
+          className={svgClassName ?? className}
+          data-active={active ? "true" : undefined}
+          fill="none"
+          role="img"
+          viewBox={outline.viewBox}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d={outline.path} />
+        </svg>
+      ) : null}
+    </>
   );
 }
