@@ -8,7 +8,7 @@ import { supabaseAuth } from "./supabase-auth";
 
 // v3 drops the old remote circuit-image associations, which could belong to
 // a different meeting after a date/name match.
-const LOCAL_DATA_CACHE_KEY = "f1-local-data-cache-v6";
+const LOCAL_DATA_CACHE_KEY = "f1-local-data-cache-v7";
 const LOCAL_DATA_CACHE_TTL = 24 * 60 * 60 * 1000;
 let localDataCache: LocalF1Data | null = null;
 let localDataCacheTimestamp = 0;

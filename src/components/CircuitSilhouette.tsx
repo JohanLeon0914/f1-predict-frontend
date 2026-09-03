@@ -23,15 +23,16 @@ export function CircuitSilhouette({
   const outline = getCircuitOutline(race.circuit?.circuitRef);
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const circuitAssetPath = getCircuitAssetPath(race.circuit?.circuitRef);
+  const apiImageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
+    ? race.circuitImageUrl
+    : null;
+  const imageUrl = apiImageUrl ?? (circuitAssetPath !== failedImageUrl ? circuitAssetPath : null);
   const circuitAssetClassName = [
     imageClassName ?? className,
-    race.circuit?.circuitRef === "monza" ? "circuit-image-monza" : null,
+    !apiImageUrl && race.circuit?.circuitRef === "monza" ? "circuit-image-monza" : null,
   ]
     .filter(Boolean)
     .join(" ");
-  const imageUrl = circuitAssetPath && circuitAssetPath !== failedImageUrl
-    ? circuitAssetPath
-    : null;
 
   return (
     <>

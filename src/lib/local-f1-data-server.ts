@@ -533,7 +533,7 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
 
 export const getCachedLocalF1Data = unstable_cache(
   buildLocalF1Data,
-  ["local-f1-data-v6"],
+  ["local-f1-data-v7"],
   {
     revalidate: LOCAL_F1_DATA_REVALIDATE_SECONDS,
     tags: ["local-f1-data"],
