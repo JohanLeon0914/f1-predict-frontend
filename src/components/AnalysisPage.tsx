@@ -31,6 +31,7 @@ function buildFallbackRaceForSilhouette(analysis: AnalysisRecord): Race {
     time: null,
     status: analysis.status === "post-race" ? "past" : "future",
     circuitImageUrl: null,
+    circuitImageSource: null,
     circuit: {
       circuitId: analysis.round,
       circuitRef: analysis.circuitRef,

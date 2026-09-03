@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { getCircuitOutline } from "@/lib/circuit-outlines";
 import type { Race } from "@/lib/types";
 
 type CircuitSilhouetteProps = {
@@ -39,17 +38,13 @@ export function CircuitSilhouette({
     );
   }
 
-  const outline = getCircuitOutline(race.circuit?.circuitRef);
-
   return (
-    <svg
+    <span
       className={svgClassName ?? className}
-      viewBox={outline.viewBox}
       role="img"
       aria-label={`${race.name} circuit outline`}
       data-active={active ? "true" : undefined}
-    >
-      <path d={outline.path} />
-    </svg>
+      data-circuit-placeholder="true"
+    />
   );
 }

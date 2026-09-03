@@ -818,6 +818,10 @@ pre {
   stroke-width: 3;
 }
 
+[data-circuit-placeholder="true"] {
+  display: block;
+}
+
 .event-tile footer {
   align-items: end;
   bottom: 1.1rem;

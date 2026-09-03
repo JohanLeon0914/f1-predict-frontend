@@ -153,6 +153,7 @@ export type Race = {
   time: string | null;
   status: "future" | "past";
   circuitImageUrl?: string | null;
+  circuitImageSource?: "openf1" | null;
   circuit?: Circuit;
 };
 

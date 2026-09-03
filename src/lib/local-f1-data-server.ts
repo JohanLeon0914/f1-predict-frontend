@@ -59,7 +59,10 @@ type OpenF1Session = {
 type OpenF1Meeting = {
   circuit_image?: string;
   circuit_short_name?: string;
+  country_name?: string;
+  date_start?: string;
   meeting_name?: string;
+  year?: number;
 };
 
 type JolpicaDriver = {
@@ -215,15 +218,38 @@ async function readOpenF1RaceDrivers(races: Race[]) {
   return output;
 }
 
-const openF1CircuitNamesByRef: Record<string, string[]> = {
-  monza: ["monza"], madring: ["madring"], baku: ["baku"],
-  marina_bay: ["marina bay"], americas: ["austin"], rodriguez: ["mexico city"],
-  interlagos: ["interlagos"], vegas: ["las vegas"], losail: ["lusail", "losail"],
-  yas_marina: ["yas marina"],
-};
-
 function normalizeCircuitName(value?: string) {
   return value?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ?? "";
+}
+
+function normalizeCountryName(value?: string) {
+  const country = normalizeCircuitName(value);
+  if (["usa", "united states of america"].includes(country)) return "united states";
+  if (["uae", "united arab emirates"].includes(country)) return "united arab emirates";
+  return country;
+}
+
+function isMatchingOpenF1Meeting(race: Race, meeting: OpenF1Meeting) {
+  const meetingName = normalizeCircuitName(meeting.meeting_name);
+  const raceName = normalizeCircuitName(race.name);
+  const circuitName = normalizeCircuitName(meeting.circuit_short_name);
+  const raceCircuitName = normalizeCircuitName(race.circuit?.name);
+  const countryName = normalizeCountryName(meeting.country_name);
+  const raceCountry = normalizeCountryName(race.circuit?.country);
+
+  const sameEvent =
+    meetingName === raceName ||
+    (meetingName.includes(raceName) && raceName.length > 4) ||
+    (raceName.includes(meetingName) && meetingName.length > 4);
+  const sameCircuit =
+    circuitName === raceCircuitName ||
+    (raceCircuitName.includes(circuitName) && circuitName.length > 4) ||
+    (circuitName.includes(raceCircuitName) && raceCircuitName.length > 4);
+  const sameCountry = !countryName || !raceCountry || countryName === raceCountry;
+  const sameYear = !meeting.year || meeting.year === race.year;
+  const sameDate = Boolean(meeting.date_start && meeting.date_start.slice(0, 10) === race.date);
+
+  return sameCountry && sameYear && (sameDate || sameEvent || sameCircuit);
 }
 
 async function readOpenF1CircuitImages(races: Race[]) {
@@ -238,12 +264,9 @@ async function readOpenF1CircuitImages(races: Race[]) {
     }))).flat();
 
     for (const race of races) {
-      const acceptedNames = openF1CircuitNamesByRef[race.circuit?.circuitRef ?? ""] ?? [];
       const meeting = meetings.find((item) => {
         if (!item.circuit_image) return false;
-        const circuitName = normalizeCircuitName(item.circuit_short_name);
-        const meetingName = normalizeCircuitName(item.meeting_name);
-        return acceptedNames.includes(circuitName) || meetingName === normalizeCircuitName(race.name);
+        return isMatchingOpenF1Meeting(race, item);
       });
       if (meeting?.circuit_image) output.set(race.raceId, meeting.circuit_image);
     }
@@ -365,7 +388,9 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
     readOpenF1CircuitImages(futureRaces),
   ]);
   for (const race of futureRaces) {
-    race.circuitImageUrl = circuitImagesByRaceId.get(race.raceId) ?? null;
+    const circuitImageUrl = circuitImagesByRaceId.get(race.raceId) ?? null;
+    race.circuitImageUrl = circuitImageUrl;
+    race.circuitImageSource = circuitImageUrl ? "openf1" : null;
   }
   const raceApiDrivers = { ...openF1RaceDrivers, ...jolpicaRaceDrivers };
 
@@ -508,7 +533,7 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
 
 export const getCachedLocalF1Data = unstable_cache(
   buildLocalF1Data,
-  ["local-f1-data-v5"],
+  ["local-f1-data-v6"],
   {
     revalidate: LOCAL_F1_DATA_REVALIDATE_SECONDS,
     tags: ["local-f1-data"],

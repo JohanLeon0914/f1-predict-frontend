@@ -59,6 +59,12 @@ supabase/migrations/20260828161000_create_prediction_tables.sql
 
 La migracion habilita RLS para que cada usuario autenticado solo pueda insertar y leer sus propias predicciones.
 
+Notas de cache de carreras e imagenes de circuitos:
+
+```txt
+docs/race-data-cache-and-circuit-images.md
+```
+
 Usuarios premium:
 
 ```sql
