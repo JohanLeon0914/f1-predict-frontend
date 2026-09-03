@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import { getCircuitOutline } from "@/lib/circuit-outlines";
 import type { Race } from "@/lib/types";
 
 type CircuitSilhouetteProps = {
@@ -15,36 +14,21 @@ type CircuitSilhouetteProps = {
 export function CircuitSilhouette({
   active = false,
   className,
-  imageClassName,
   race,
-  svgClassName,
 }: CircuitSilhouetteProps) {
-  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
-  const imageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
-    ? race.circuitImageUrl
-    : null;
-
-  if (imageUrl) {
-    return (
-      <Image
-        alt={`${race.name} circuit outline`}
-        className={imageClassName ?? className}
-        height={96}
-        onError={() => setFailedImageUrl(imageUrl)}
-        src={imageUrl}
-        unoptimized
-        width={180}
-      />
-    );
-  }
+  const outline = getCircuitOutline(race.circuit?.circuitRef);
 
   return (
-    <span
-      className={svgClassName ?? className}
-      role="img"
+    <svg
       aria-label={`${race.name} circuit outline`}
+      className={className}
       data-active={active ? "true" : undefined}
-      data-circuit-placeholder="true"
-    />
+      fill="none"
+      role="img"
+      viewBox={outline.viewBox}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d={outline.path} />
+    </svg>
   );
 }
