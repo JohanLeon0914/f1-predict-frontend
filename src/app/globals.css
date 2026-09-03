@@ -2368,10 +2368,6 @@ pre {
   color: #fff;
 }
 
-.site-footer-column a[href="/support"] {
-  color: var(--red);
-}
-
 .site-footer-socials {
   display: flex;
   flex-wrap: wrap;

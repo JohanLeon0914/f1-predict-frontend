@@ -3,7 +3,7 @@ import Link from "next/link";
 import { contactEmail, socialLinks } from "@/lib/site";
 
 const navigationLinks = [
-  { href: "/races", label: "Predictions" },
+  { href: "/races", label: "Races" },
   { href: "/analysis", label: "Analysis" },
   { href: "/#who-we-are", label: "About & Contact" },
   { href: "/support", label: "Support" },
