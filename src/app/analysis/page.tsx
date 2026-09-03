@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AnalysisCard } from "@/components/AnalysisPage";
+import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
 import { getAnalysisEntries } from "@/lib/analysis-content";
 import { absoluteUrl, siteName } from "@/lib/site";
 
@@ -21,7 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AnalysisIndexPage() {
+export default async function AnalysisIndexPage() {
+  const localData = await getCachedLocalF1Data();
   const analysisEntries = getAnalysisEntries();
 
   return (
@@ -53,7 +55,7 @@ export default function AnalysisIndexPage() {
         </div>
         <div className="analysis-grid">
           {analysisEntries.map((analysis) => (
-            <AnalysisCard analysis={analysis} key={analysis.slug} />
+            <AnalysisCard analysis={analysis} initialData={localData} key={analysis.slug} />
           ))}
         </div>
       </section>

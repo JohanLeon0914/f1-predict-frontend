@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RacesClient } from "@/components/RacesClient";
+import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
 import { absoluteUrl, siteName } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -19,10 +20,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RacesPage() {
+export default async function RacesPage() {
+  const localData = await getCachedLocalF1Data();
+
   return (
     <Suspense fallback={<div className="page-shell races-loading" aria-busy="true" />}>
-      <RacesClient />
+      <RacesClient initialData={localData} />
     </Suspense>
   );
 }

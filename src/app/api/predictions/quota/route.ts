@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   getAuthenticatedUser,
+  hasUnlimitedF1Access,
   getMonthlyRacePredictionCount,
   isPremiumUser,
 } from "@/lib/supabase-server";
@@ -33,14 +34,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ detail: "Race invalida." }, { status: 400 });
   }
 
-  const isPremium = await isPremiumUser(supabase, user.email);
+  const [isPremium, hasUnlimitedF1] = await Promise.all([
+    isPremiumUser(supabase, user.email),
+    hasUnlimitedF1Access(supabase, user.id),
+  ]);
   const used = await getMonthlyRacePredictionCount(supabase, user.id, raceId);
   const remaining = Math.max(FREE_MONTHLY_RACE_LIMIT - used, 0);
 
-  if (isPremium) {
+  if (isPremium || hasUnlimitedF1) {
     return NextResponse.json({
       allowed: true,
-      is_premium: true,
+      has_unlimited_f1_access: hasUnlimitedF1,
+      is_premium: isPremium,
       limit: null,
       remaining: null,
       used,
@@ -52,6 +57,7 @@ export async function POST(request: NextRequest) {
       {
         allowed: false,
         detail: "Los usuarios gratuitos solo pueden correr 1 simulacion en Races.",
+        has_unlimited_f1_access: false,
         is_premium: false,
         limit: FREE_MONTHLY_RACE_LIMIT,
         remaining,
@@ -66,6 +72,7 @@ export async function POST(request: NextRequest) {
       {
         allowed: false,
         detail: "Llegaste al limite de 3 predicciones por carrera este mes.",
+        has_unlimited_f1_access: false,
         is_premium: false,
         limit: FREE_MONTHLY_RACE_LIMIT,
         remaining: 0,
@@ -77,6 +84,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     allowed: true,
+    has_unlimited_f1_access: false,
     is_premium: false,
     limit: FREE_MONTHLY_RACE_LIMIT,
     remaining,

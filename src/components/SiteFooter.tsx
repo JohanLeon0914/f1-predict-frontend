@@ -4,6 +4,7 @@ import { contactEmail, socialLinks } from "@/lib/site";
 const footerLinks = [
   { href: "/analysis", label: "Analysis" },
   { href: "/races", label: "Races" },
+  { href: "/support", label: "Support" },
   { href: "/#who-we-are", label: "About & Contact" },
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms" },

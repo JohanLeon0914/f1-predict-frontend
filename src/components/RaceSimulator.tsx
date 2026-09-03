@@ -21,6 +21,7 @@ import type {
 
 type Props = {
   mode: "free" | "race";
+  initialData?: LocalF1Data | null;
   selectedRace?: Race | null;
 };
 
@@ -100,7 +101,7 @@ function buildBlankRoster(data: LocalF1Data): ParticipantRequest[] {
   }));
 }
 
-export function RaceSimulator({ mode, selectedRace }: Props) {
+export function RaceSimulator({ initialData = null, mode, selectedRace }: Props) {
   const { loading: authLoading, premiumLoading, user } = useAuth();
   const [data, setData] = useState<LocalF1Data | null>(null);
   const [raceId, setRaceId] = useState(selectedRace ? String(selectedRace.raceId) : "");
@@ -122,27 +123,37 @@ export function RaceSimulator({ mode, selectedRace }: Props) {
 
   useEffect(() => {
     ensureGuestId();
-    Promise.allSettled([getLocalF1Data(), getHealth(), getMetrics()]).then(
+    const applyLocalData = (localData: LocalF1Data) => {
+      setData(localData);
+      const firstRace = selectedRace ?? localData.races.find((race) => race.status === "future");
+      if (firstRace) {
+        setRaceId((current) => current || String(firstRace.raceId));
+        setCircuitId((current) => current || String(firstRace.circuitId));
+        setRaceDate((current) => current || firstRace.date);
+      }
+      setParticipants((current) =>
+        current.some((participant) => participant.driverId)
+          ? current
+          : mode === "race"
+            ? buildBlankRoster(localData)
+            : localData.latestParticipants.slice(0, 20),
+      );
+    };
+
+    Promise.allSettled([
+      getLocalF1Data({ initialData, onUpdate: applyLocalData }),
+      getHealth(),
+      getMetrics(),
+    ]).then(
       ([localData, healthResult, metricsResult]) => {
         if (localData.status === "fulfilled") {
-          setData(localData.value);
-          const firstRace = selectedRace ?? localData.value.races.find((race) => race.status === "future");
-          if (firstRace) {
-            setRaceId(String(firstRace.raceId));
-            setCircuitId(String(firstRace.circuitId));
-            setRaceDate(firstRace.date);
-          }
-          setParticipants(
-            mode === "race"
-              ? buildBlankRoster(localData.value)
-              : localData.value.latestParticipants.slice(0, 20),
-          );
+          applyLocalData(localData.value);
         }
         setHealth(healthResult.status === "fulfilled" ? "ok" : "error");
         if (metricsResult.status === "fulfilled") setMetrics(metricsResult.value);
       },
     );
-  }, [mode, selectedRace]);
+  }, [initialData, mode, selectedRace]);
 
   const currentRace = useMemo(() => {
     if (!data) return null;

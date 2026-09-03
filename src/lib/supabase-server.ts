@@ -6,6 +6,7 @@ const supabaseKey =
   process.env.SUPABASE_SECRET_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY;
 
 export function getAccessToken(request: NextRequest) {
   const authorization = request.headers.get("authorization");
@@ -23,6 +24,13 @@ export function getSupabaseServerClient(accessToken?: string | null) {
           },
         }
       : undefined,
+  });
+}
+
+export function getSupabaseServiceRoleClient() {
+  if (!supabaseUrl || !supabaseServiceKey) return null;
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { persistSession: false },
   });
 }
 
@@ -56,6 +64,36 @@ export async function isPremiumUser(
 
   if (error) return false;
   return Boolean(data);
+}
+
+export async function hasUnlimitedF1Access(
+  supabase: SupabaseServerClient,
+  userId?: string | null,
+) {
+  if (!userId) return false;
+
+  const { data, error } = await supabase
+    .from("user_access")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("access_type", "unlimited_f1")
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+    .limit(1);
+
+  if (error) return false;
+  return Boolean(data?.length);
+}
+
+export async function getUserEntitlements(
+  supabase: SupabaseServerClient,
+  userId?: string | null,
+) {
+  const hasUnlimitedF1 = await hasUnlimitedF1Access(supabase, userId);
+
+  return {
+    founding_supporter: hasUnlimitedF1,
+    has_unlimited_f1_access: hasUnlimitedF1,
+  };
 }
 
 export function getMonthRange(now = new Date()) {

@@ -19,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
+      url: absoluteUrl("/support"),
+      lastModified: new Date(),
+    },
+    {
       url: absoluteUrl("/privacy-policy"),
       lastModified: new Date(),
     },

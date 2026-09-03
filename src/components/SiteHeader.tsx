@@ -9,12 +9,13 @@ import { useAuth } from "@/components/AuthProvider";
 const navItems = [
   { href: "/races", label: "Races", activePath: "/races" },
   { href: "/analysis", label: "Analysis", activePath: "/analysis" },
+  { href: "/support", label: "Support", activePath: "/support" },
   { href: "/#how-it-works", label: "How it works", activePath: null },
   { href: "/#who-we-are", label: "About & Contact", activePath: null },
 ];
 
 export function SiteHeader() {
-  const { signInWithGoogle, signOutUser, user } = useAuth();
+  const { foundingSupporter, signInWithGoogle, signOutUser, user } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,12 +63,17 @@ export function SiteHeader() {
         </nav>
         <div className="header-actions">
           {user ? (
-            <button className="header-auth" onClick={signOutUser} type="button">
-              <span className="user-avatar" aria-hidden="true">
-                {userInitial}
-              </span>
-              Sign out
-            </button>
+            <>
+              {foundingSupporter ? (
+                <span className="supporter-badge">Founding Supporter</span>
+              ) : null}
+              <button className="header-auth" onClick={signOutUser} type="button">
+                <span className="user-avatar" aria-hidden="true">
+                  {userInitial}
+                </span>
+                Sign out
+              </button>
+            </>
           ) : (
             <button className="header-cta" onClick={signInWithGoogle} type="button">
               Sign in

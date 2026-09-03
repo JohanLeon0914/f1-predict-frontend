@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { CircuitSilhouette } from "@/components/CircuitSilhouette";
 import { getLocalF1Data } from "@/lib/f1-ranker-api";
 import { contactEmail, socialLinks } from "@/lib/site";
-import type { Race } from "@/lib/types";
+import type { LocalF1Data, Race } from "@/lib/types";
 
 const features = [
   ["UPCOMING EVENTS", "Discover future races."],
@@ -58,17 +58,26 @@ function countryCode(country?: string) {
   return countryCodes[country ?? ""] ?? country?.slice(0, 2).toUpperCase() ?? "F1";
 }
 
-export function LandingPage() {
+type LandingPageProps = {
+  initialData?: LocalF1Data | null;
+};
+
+export function LandingPage({ initialData = null }: LandingPageProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [races, setRaces] = useState<Race[]>([]);
-  const [racesLoading, setRacesLoading] = useState(true);
+  const initialRaces = initialData?.races.filter((race) => race.status === "future").slice(0, 3) ?? [];
+  const [races, setRaces] = useState<Race[]>(initialRaces);
+  const [racesLoading, setRacesLoading] = useState(!initialRaces.length);
 
   useEffect(() => {
-    getLocalF1Data()
+    const applyLocalData = (data: LocalF1Data) => {
+      setRaces(data.races.filter((race) => race.status === "future").slice(0, 3));
+    };
+
+    getLocalF1Data({ initialData, onUpdate: applyLocalData })
       .then((data) => setRaces(data.races.filter((race) => race.status === "future").slice(0, 3)))
       .catch(() => setRaces([]))
       .finally(() => setRacesLoading(false));
-  }, []);
+  }, [initialData]);
 
   useEffect(() => {
     let frame = 0;

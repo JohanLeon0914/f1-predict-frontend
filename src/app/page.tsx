@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/LandingPage";
+import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
 import { absoluteUrl, siteName } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -18,6 +19,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <LandingPage />;
+export default async function Home() {
+  const localData = await getCachedLocalF1Data();
+
+  return <LandingPage initialData={localData} />;
 }

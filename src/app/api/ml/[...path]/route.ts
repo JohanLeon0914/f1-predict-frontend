@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   getAuthenticatedUser,
+  hasUnlimitedF1Access,
   getMonthlyRacePredictionCount,
   isPremiumUser,
 } from "@/lib/supabase-server";
@@ -78,10 +79,13 @@ export async function POST(
       return NextResponse.json({ detail: "Race invalida." }, { status: 400 });
     }
 
-    const isPremium = await isPremiumUser(supabase, user.email);
+    const [isPremium, hasUnlimitedF1] = await Promise.all([
+      isPremiumUser(supabase, user.email),
+      hasUnlimitedF1Access(supabase, user.id),
+    ]);
     const used = await getMonthlyRacePredictionCount(supabase, user.id, raceId);
 
-    if (!isPremium && used >= FREE_MONTHLY_RACE_LIMIT) {
+    if (!isPremium && !hasUnlimitedF1 && used >= FREE_MONTHLY_RACE_LIMIT) {
       return NextResponse.json(
         { detail: "Llegaste al limite de 3 predicciones por carrera este mes." },
         { status: 403 },

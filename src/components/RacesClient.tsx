@@ -165,8 +165,18 @@ function DriverHelmet({ driver }: { driver?: DriverOption }) {
   );
 }
 
-export function RacesClient() {
-  const { isPremium, loading: authLoading, premiumLoading, user } = useAuth();
+type RacesClientProps = {
+  initialData?: LocalF1Data | null;
+};
+
+export function RacesClient({ initialData = null }: RacesClientProps) {
+  const {
+    hasUnlimitedF1Access,
+    isPremium,
+    loading: authLoading,
+    premiumLoading,
+    user,
+  } = useAuth();
   const searchParams = useSearchParams();
   const requestedRaceId = searchParams.get("race");
   const [step, setStep] = useState<Step>(1);
@@ -187,21 +197,31 @@ export function RacesClient() {
 
   useEffect(() => {
     ensureGuestId();
-    Promise.allSettled([getLocalF1Data(), getHealth(), getMetrics()]).then(
+    const applyLocalData = (localData: LocalF1Data) => {
+      const requestedRace = Number(requestedRaceId);
+      const linkedRace = localData.races.find(
+        (race) => race.status === "future" && race.raceId === requestedRace,
+      );
+      const nextRace = linkedRace ?? localData.races.find((race) => race.status === "future");
+      setData(localData);
+      setSelectedRaceId((current) => current ?? nextRace?.raceId ?? null);
+      setStep((current) => (linkedRace && current === 1 ? 2 : current));
+      setParticipants((current) =>
+        current.length
+          ? current
+          : (nextRace && localData.participantsByRace[String(nextRace.raceId)]) ??
+            buildBaselineRoster(localData),
+      );
+    };
+
+    Promise.allSettled([
+      getLocalF1Data({ initialData, onUpdate: applyLocalData }),
+      getHealth(),
+      getMetrics(),
+    ]).then(
       ([localData, healthResult, metricsResult]) => {
         if (localData.status === "fulfilled") {
-          const requestedRace = Number(requestedRaceId);
-          const linkedRace = localData.value.races.find(
-            (race) => race.status === "future" && race.raceId === requestedRace,
-          );
-          const nextRace = linkedRace ?? localData.value.races.find((race) => race.status === "future");
-          setData(localData.value);
-          setSelectedRaceId(nextRace?.raceId ?? null);
-          setStep(linkedRace ? 2 : 1);
-          setParticipants(
-            (nextRace && localData.value.participantsByRace[String(nextRace.raceId)]) ??
-              buildBaselineRoster(localData.value),
-          );
+          applyLocalData(localData.value);
         } else {
           setError(localData.reason instanceof Error ? localData.reason.message : "The race calendar could not be loaded.");
         }
@@ -209,7 +229,7 @@ export function RacesClient() {
         if (metricsResult.status === "fulfilled") setMetrics(metricsResult.value);
       },
     );
-  }, [requestedRaceId]);
+  }, [initialData, requestedRaceId]);
 
   const futureRaces = useMemo(
     () => data?.races.filter((race) => race.status === "future") ?? [],
@@ -299,8 +319,9 @@ export function RacesClient() {
       return;
     }
 
-    const total = isPremium ? Math.min(Math.max(simulationCount, 1), 100) : 1;
-    if (!isPremium && simulationCount !== 1) setSimulationCount(1);
+    const hasAdvancedAccess = isPremium || hasUnlimitedF1Access;
+    const total = hasAdvancedAccess ? Math.min(Math.max(simulationCount, 1), 100) : 1;
+    if (!hasAdvancedAccess && simulationCount !== 1) setSimulationCount(1);
 
     const cleanParticipants = participants.filter(
       (participant) => participant.driverId && participant.constructorId,
@@ -508,16 +529,16 @@ export function RacesClient() {
             <label className="field">
               Simulations
               <input
-                disabled={!isPremium}
+                disabled={!isPremium && !hasUnlimitedF1Access}
                 inputMode="numeric"
                 maxLength={3}
                 pattern="[0-9]*"
                 type="text"
-                value={isPremium ? simulationCount : 1}
+                value={isPremium || hasUnlimitedF1Access ? simulationCount : 1}
                 onChange={(event) => setSimulationCount(normalizeSimulationCount(event.target.value))}
               />
             </label>
-            {!isPremium ? (
+            {!isPremium && !hasUnlimitedF1Access ? (
               <div className="quota-note">
                 Free plan: 1 simulation and 3 predictions per race each month.
               </div>
@@ -529,7 +550,7 @@ export function RacesClient() {
               Change race
             </button>
             <button className="button-primary" disabled={running || authLoading || premiumLoading} onClick={runPrediction} type="button">
-              {running ? `Running ${progress}/${isPremium ? simulationCount : 1}` : "Run prediction"} <span>→</span>
+              {running ? `Running ${progress}/${isPremium || hasUnlimitedF1Access ? simulationCount : 1}` : "Run prediction"} <span>→</span>
             </button>
           </div>
 
@@ -672,7 +693,7 @@ export function RacesClient() {
               <p className="tech-label">STEP 03</p>
               <h1>Simulation results</h1>
               <p>
-                {selectedRace?.name ?? "Race"} · {isPremium ? simulationCount : 1} simulations
+                {selectedRace?.name ?? "Race"} · {isPremium || hasUnlimitedF1Access ? simulationCount : 1} simulations
                 {savedMode ? ` · Saved to ${savedMode}` : ""}
               </p>
             </div>

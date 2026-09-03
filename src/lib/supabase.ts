@@ -34,6 +34,7 @@ export async function checkPredictionQuota(payload: PredictionQuotaRequest) {
   return readJson<{
     allowed: boolean;
     detail?: string;
+    has_unlimited_f1_access: boolean;
     is_premium: boolean;
     limit: number | null;
     remaining: number | null;

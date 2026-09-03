@@ -5,14 +5,18 @@ import { getLocalF1Data } from "@/lib/f1-ranker-api";
 import { ensureGuestId, loadSavedPredictions } from "@/lib/supabase";
 import type { LocalF1Data, SavedPrediction } from "@/lib/types";
 
-export function HistoryClient() {
+type HistoryClientProps = {
+  initialData?: LocalF1Data | null;
+};
+
+export function HistoryClient({ initialData = null }: HistoryClientProps) {
   const [items, setItems] = useState<SavedPrediction[]>([]);
-  const [data, setData] = useState<LocalF1Data | null>(null);
+  const [data, setData] = useState<LocalF1Data | null>(initialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     ensureGuestId();
-    Promise.all([loadSavedPredictions(), getLocalF1Data()])
+    Promise.all([loadSavedPredictions(), getLocalF1Data({ initialData, onUpdate: setData })])
       .then(([predictions, localData]) => {
         setItems(predictions);
         setData(localData);
@@ -20,7 +24,7 @@ export function HistoryClient() {
       .catch((caught) =>
         setError(caught instanceof Error ? caught.message : "History could not be loaded."),
       );
-  }, []);
+  }, [initialData]);
 
   function getDriverName(driverId: number) {
     return data?.drivers.find((driver) => driver.driverId === driverId)?.name ?? `Driver ${driverId}`;

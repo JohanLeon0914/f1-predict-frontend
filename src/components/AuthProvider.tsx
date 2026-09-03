@@ -16,6 +16,8 @@ type AuthContextValue = {
   user: User | null;
   loading: boolean;
   premiumLoading: boolean;
+  foundingSupporter: boolean;
+  hasUnlimitedF1Access: boolean;
   isPremium: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [premiumLoading, setPremiumLoading] = useState(false);
+  const [foundingSupporter, setFoundingSupporter] = useState(false);
+  const [hasUnlimitedF1Access, setHasUnlimitedF1Access] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user || !supabaseAuth) {
       Promise.resolve().then(() => {
         if (!mounted) return;
+        setFoundingSupporter(false);
+        setHasUnlimitedF1Access(false);
         setIsPremium(false);
         setPremiumLoading(false);
       });
@@ -87,10 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then((response) => response.json())
       .then((profile) => {
         if (!mounted) return;
+        setFoundingSupporter(Boolean(profile?.founding_supporter));
+        setHasUnlimitedF1Access(Boolean(profile?.has_unlimited_f1_access));
         setIsPremium(Boolean(profile?.is_premium));
       })
       .catch(() => {
-        if (mounted) setIsPremium(false);
+        if (!mounted) return;
+        setFoundingSupporter(false);
+        setHasUnlimitedF1Access(false);
+        setIsPremium(false);
       })
       .finally(() => {
         if (mounted) setPremiumLoading(false);
@@ -140,12 +151,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       premiumLoading,
+      foundingSupporter,
+      hasUnlimitedF1Access,
       isPremium,
       error,
       signInWithGoogle,
       signOutUser,
     }),
-    [error, isPremium, loading, premiumLoading, signInWithGoogle, signOutUser, user],
+    [
+      error,
+      foundingSupporter,
+      hasUnlimitedF1Access,
+      isPremium,
+      loading,
+      premiumLoading,
+      signInWithGoogle,
+      signOutUser,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

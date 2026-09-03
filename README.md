@@ -36,6 +36,10 @@ NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-7540259599534777
 NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP=
 NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE=
 NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE=
+SUPABASE_SECRET_KEY=
+KOFI_VERIFICATION_TOKEN=
+KOFI_FOUNDING_PROMO_START=2026-09-03T00:00:00.000Z
+KOFI_FOUNDING_PROMO_END=2026-10-03T00:00:00.000Z
 ```
 
 No uses `sb_secret_*` en el frontend. Esa llave es solo para backend, server functions o workers.
@@ -62,6 +66,33 @@ insert into public.premium_users (email) values ('usuario@gmail.com');
 ```
 
 Los usuarios premium no ven anuncios y no tienen los limites del plan gratuito.
+
+## Ko-fi Support
+
+La pagina publica de soporte vive en `/support` y apunta a:
+
+```txt
+https://ko-fi.com/grdx1
+```
+
+Configura el webhook de Ko-fi en:
+
+```txt
+https://www.grdx1.com/api/webhooks/kofi
+```
+
+Variables necesarias del backend:
+
+```bash
+KOFI_VERIFICATION_TOKEN=
+KOFI_FOUNDING_PROMO_START=2026-09-03T00:00:00.000Z
+KOFI_FOUNDING_PROMO_END=2026-10-03T00:00:00.000Z
+SUPABASE_SECRET_KEY=
+```
+
+`KOFI_FOUNDING_PROMO_END` debe quedar un mes despues del inicio real de la campana. Solo las donaciones Ko-fi recibidas dentro de esa ventana reciben automaticamente `unlimited_f1` con `source = 'kofi_founding_supporter'`. Pagos fuera de la ventana se guardan en `kofi_payments`, pero no reciben ese acceso automaticamente.
+
+Para probar, usa el boton de test webhook en Ko-fi. El endpoint espera un `POST` con form data y un campo `data` que contiene el JSON del evento. La donacion se procesa solo si `verification_token` coincide con `KOFI_VERIFICATION_TOKEN`; los reintentos se deduplican por `message_id`.
 
 ## Google AdSense
 

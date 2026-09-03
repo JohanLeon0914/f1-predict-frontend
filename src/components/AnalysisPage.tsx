@@ -62,12 +62,17 @@ function findMatchingRace(data: LocalF1Data | null, analysis: AnalysisRecord) {
   );
 }
 
-function useLocalF1Data() {
-  const [data, setData] = useState<LocalF1Data | null>(null);
+function useLocalF1Data(initialData: LocalF1Data | null) {
+  const [data, setData] = useState<LocalF1Data | null>(initialData);
 
   useEffect(() => {
     let mounted = true;
-    getLocalF1Data()
+    getLocalF1Data({
+      initialData,
+      onUpdate: (localData) => {
+        if (mounted) setData(localData);
+      },
+    })
       .then((localData) => {
         if (mounted) setData(localData);
       })
@@ -78,13 +83,20 @@ function useLocalF1Data() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [initialData]);
 
   return data;
 }
 
-export function AnalysisCard({ analysis }: { analysis: AnalysisRecord }) {
-  const localData = useLocalF1Data();
+type AnalysisRaceDataProps = {
+  initialData?: LocalF1Data | null;
+};
+
+export function AnalysisCard({
+  analysis,
+  initialData = null,
+}: { analysis: AnalysisRecord } & AnalysisRaceDataProps) {
+  const localData = useLocalF1Data(initialData);
   const race = useMemo(() => findMatchingRace(localData, analysis), [analysis, localData]);
 
   return (
@@ -109,8 +121,11 @@ export function AnalysisCard({ analysis }: { analysis: AnalysisRecord }) {
   );
 }
 
-export function AnalysisArticle({ analysis }: { analysis: AnalysisRecord }) {
-  const localData = useLocalF1Data();
+export function AnalysisArticle({
+  analysis,
+  initialData = null,
+}: { analysis: AnalysisRecord } & AnalysisRaceDataProps) {
+  const localData = useLocalF1Data(initialData);
   const race = useMemo(() => findMatchingRace(localData, analysis), [analysis, localData]);
   const hasActualResults = analysis.predictionRows.some((row) => row.actualPosition != null);
 
