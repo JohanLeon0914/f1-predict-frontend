@@ -23,6 +23,12 @@ export function CircuitSilhouette({
   const outline = getCircuitOutline(race.circuit?.circuitRef);
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
   const circuitAssetPath = getCircuitAssetPath(race.circuit?.circuitRef);
+  const circuitAssetClassName = [
+    imageClassName ?? className,
+    race.circuit?.circuitRef === "monza" ? "circuit-image-monza" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const imageUrl = circuitAssetPath && circuitAssetPath !== failedImageUrl
     ? circuitAssetPath
     : null;
@@ -32,7 +38,7 @@ export function CircuitSilhouette({
       {imageUrl ? (
         <Image
           alt={`${race.name} circuit outline`}
-          className={imageClassName ?? className}
+          className={circuitAssetClassName}
           height={96}
           onError={() => setFailedImageUrl(imageUrl)}
           src={imageUrl}

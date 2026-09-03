@@ -810,6 +810,12 @@ pre {
   width: calc(100% - 2.4rem);
 }
 
+/* Monza's source layout is vertical inside a square canvas; rotate the asset
+   in horizontal race cards without changing the actual track geometry. */
+.circuit-image-monza {
+  transform: rotate(90deg) scale(0.9);
+}
+
 .event-tile path,
 .dashboard-mock path {
   fill: none;
