@@ -165,6 +165,27 @@ function driverPhoto(driverId: number, drivers: DriverOption[]) {
   return drivers.find((driver) => driver.driverId === driverId)?.headshotUrl ?? null;
 }
 
+function DriverAnalysisImage({ driverId, drivers }: { driverId: number; drivers: DriverOption[] }) {
+  const photo = driverPhoto(driverId, drivers);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (photo && !imageFailed) {
+    return (
+      <Image
+        className="analysis-headshot"
+        alt={driverName(driverId, drivers)}
+        src={photo}
+        width={126}
+        height={126}
+        onError={() => setImageFailed(true)}
+        unoptimized
+      />
+    );
+  }
+
+  return <div className="analysis-headshot analysis-headshot-fallback">{driverName(driverId, drivers).slice(0, 2).toUpperCase()}</div>;
+}
+
 function teamName(driver: PredictionDashboardDriver, drivers: DriverOption[], constructors: ConstructorOption[]) {
   const constructorName = constructors.find((team) => team.constructorId === driver.constructorId)?.name;
   const catalogTeam = drivers.find((catalogDriver) => catalogDriver.driverId === driver.driverId)?.teamName;
@@ -321,11 +342,7 @@ export function PredictionAnalysisDashboard({ constructors, drivers, race, respo
                   <span>{selectedDriver.predicted_position}</span>
                   <small>Predicted position</small>
                 </div>
-                {driverPhoto(selectedDriver.driverId, drivers) ? (
-                  <Image className="analysis-headshot" alt={driverName(selectedDriver.driverId, drivers)} src={driverPhoto(selectedDriver.driverId, drivers) ?? ""} width={126} height={126} />
-                ) : (
-                  <div className="analysis-headshot analysis-headshot-fallback">{driverName(selectedDriver.driverId, drivers).slice(0, 2).toUpperCase()}</div>
-                )}
+                <DriverAnalysisImage key={selectedDriver.driverId} driverId={selectedDriver.driverId} drivers={drivers} />
                 <dl className="winner-meta">
                   <div><dt>Driver</dt><dd>{driverName(selectedDriver.driverId, drivers)}</dd></div>
                   <div><dt>Team</dt><dd>{teamName(selectedDriver, drivers, constructors)}</dd></div>

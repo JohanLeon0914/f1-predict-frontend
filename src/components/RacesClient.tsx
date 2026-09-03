@@ -146,13 +146,17 @@ function CircuitOutline({ active = false, race }: { active?: boolean; race: Race
 }
 
 function DriverHelmet({ driver }: { driver?: DriverOption }) {
-  if (driver?.headshotUrl) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (driver?.headshotUrl && !imageFailed) {
     return (
       <Image
         alt={`${driver.name} headshot`}
         className="driver-headshot"
         height={72}
+        onError={() => setImageFailed(true)}
         src={driver.headshotUrl}
+        unoptimized
         width={72}
       />
     );
@@ -735,7 +739,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                 <h2>{winnerDriver?.name ?? "No winner yet"}</h2>
                 <p>{winnerDriver?.teamName ?? "Run a prediction"}</p>
               </div>
-              <DriverHelmet driver={winnerDriver ?? undefined} />
+              <DriverHelmet key={winnerDriver?.driverId ?? "winner"} driver={winnerDriver ?? undefined} />
               <div className="probability-ring">{winner ? winner.average_score.toFixed(2) : "--"}</div>
             </article>
 
