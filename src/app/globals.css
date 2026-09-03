@@ -3313,7 +3313,12 @@ pre {
   }
 
   .site-footer-top {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-footer-brand-block,
+  .site-footer-contact {
+    grid-column: 1 / -1;
   }
 
   .site-footer-bottom {
@@ -3482,7 +3487,19 @@ pre {
   }
 
   .support-hero-content {
-    padding: 2rem 1rem;
+    padding: 7rem 1rem 2.5rem;
+  }
+
+  .support-hero-image {
+    -webkit-mask-image: none;
+    mask-image: none;
+    object-position: 68% center;
+  }
+
+  .support-hero-shade {
+    background:
+      linear-gradient(90deg, rgb(5 6 7 / 0.78) 0%, rgb(5 6 7 / 0.3) 55%, rgb(5 6 7 / 0.66) 100%),
+      linear-gradient(180deg, rgb(5 6 7 / 0.88) 0%, rgb(5 6 7 / 0.42) 24%, transparent 52%, rgb(5 6 7 / 0.9) 100%);
   }
 
   .support-hero h1 {

@@ -65,6 +65,7 @@ export default function SupportPage() {
           className="support-hero-image"
           fill
           priority
+          quality={90}
           sizes="100vw"
           src="/mockup/hero-image.png"
         />
