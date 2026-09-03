@@ -21,7 +21,6 @@ export function CircuitSilhouette({
   svgClassName,
 }: CircuitSilhouetteProps) {
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
-  const label = `${race.name} circuit outline`;
   const imageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
     ? race.circuitImageUrl
     : null;
@@ -29,7 +28,7 @@ export function CircuitSilhouette({
   if (imageUrl) {
     return (
       <Image
-        alt={label}
+        alt={`${race.name} circuit outline`}
         className={imageClassName ?? className}
         height={96}
         onError={() => setFailedImageUrl(imageUrl)}
@@ -47,7 +46,7 @@ export function CircuitSilhouette({
       className={svgClassName ?? className}
       viewBox={outline.viewBox}
       role="img"
-      aria-label={label}
+      aria-label={`${race.name} circuit outline`}
       data-active={active ? "true" : undefined}
     >
       <path d={outline.path} />

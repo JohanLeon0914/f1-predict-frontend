@@ -6,7 +6,9 @@ import type {
 } from "./types";
 import { supabaseAuth } from "./supabase-auth";
 
-const LOCAL_DATA_CACHE_KEY = "f1-local-data-cache-v2";
+// v3 drops the old remote circuit-image associations, which could belong to
+// a different meeting after a date/name match.
+const LOCAL_DATA_CACHE_KEY = "f1-local-data-cache-v4";
 const LOCAL_DATA_CACHE_TTL = 30 * 60 * 1000;
 let localDataCache: LocalF1Data | null = null;
 let localDataRequest: Promise<LocalF1Data> | null = null;

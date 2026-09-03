@@ -56,8 +56,7 @@ type OpenF1Session = {
 
 type OpenF1Meeting = {
   circuit_image?: string;
-  country_name?: string;
-  date_end?: string;
+  circuit_short_name?: string;
   meeting_name?: string;
 };
 
@@ -214,33 +213,40 @@ async function readOpenF1RaceDrivers(races: Race[]) {
   return output;
 }
 
+const openF1CircuitNamesByRef: Record<string, string[]> = {
+  monza: ["monza"], madring: ["madring"], baku: ["baku"],
+  marina_bay: ["marina bay"], americas: ["austin"], rodriguez: ["mexico city"],
+  interlagos: ["interlagos"], vegas: ["las vegas"], losail: ["lusail", "losail"],
+  yas_marina: ["yas marina"],
+};
+
+function normalizeCircuitName(value?: string) {
+  return value?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ?? "";
+}
+
 async function readOpenF1CircuitImages(races: Race[]) {
   const output = new Map<number, string>();
   try {
     const years = Array.from(new Set(races.map((race) => race.year)));
-    const meetings = (
-      await Promise.all(years.map(async (year) => {
-        const response = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`, {
-          cache: "no-store",
-          signal: AbortSignal.timeout(2500),
-        });
-        return response.ok ? ((await response.json()) as OpenF1Meeting[]) : [];
-      }))
-    ).flat();
+    const meetings = (await Promise.all(years.map(async (year) => {
+      const response = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`, {
+        cache: "no-store", signal: AbortSignal.timeout(2500),
+      });
+      return response.ok ? ((await response.json()) as OpenF1Meeting[]) : [];
+    }))).flat();
 
     for (const race of races) {
+      const acceptedNames = openF1CircuitNamesByRef[race.circuit?.circuitRef ?? ""] ?? [];
       const meeting = meetings.find((item) => {
-        const sameDate = item.date_end?.slice(0, 10) === race.date;
-        const sameName = item.meeting_name === race.name;
-        const sameCountry =
-          item.country_name === race.circuit?.country ||
-          (race.circuit?.country === "USA" && item.country_name === "United States");
-        return Boolean(item.circuit_image && (sameDate || sameName || (sameCountry && sameDate)));
+        if (!item.circuit_image) return false;
+        const circuitName = normalizeCircuitName(item.circuit_short_name);
+        const meetingName = normalizeCircuitName(item.meeting_name);
+        return acceptedNames.includes(circuitName) || meetingName === normalizeCircuitName(race.name);
       });
       if (meeting?.circuit_image) output.set(race.raceId, meeting.circuit_image);
     }
   } catch {
-    // Circuit images are visual enrichment; inline SVG outlines remain the fallback.
+    // SVG outline remains the deterministic fallback.
   }
   return output;
 }
