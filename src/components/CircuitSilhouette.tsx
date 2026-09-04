@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { getDriverImageUrl } from "@/lib/driver-image";
 import type { Race } from "@/lib/types";
 import { useState } from "react";
 
@@ -18,9 +19,10 @@ export function CircuitSilhouette({
   race,
 }: CircuitSilhouetteProps) {
   const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
-  const imageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
+  const sourceImageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
     ? race.circuitImageUrl
     : null;
+  const imageUrl = getDriverImageUrl(sourceImageUrl);
 
   return (
     imageUrl ? (
@@ -29,7 +31,7 @@ export function CircuitSilhouette({
         className={imageClassName ?? className}
         data-active={active ? "true" : undefined}
         height={96}
-        onError={() => setFailedImageUrl(imageUrl)}
+        onError={() => setFailedImageUrl(sourceImageUrl)}
         src={imageUrl}
         unoptimized
         width={180}

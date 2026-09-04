@@ -251,25 +251,28 @@ function isMatchingOpenF1Meeting(race: Race, meeting: OpenF1Meeting) {
 
 async function readOpenF1CircuitImages(races: Race[]) {
   const output = new Map<number, string>();
-  try {
-    const years = Array.from(new Set(races.map((race) => race.year)));
-    const meetings = (await Promise.all(years.map(async (year) => {
+  const years = Array.from(new Set(races.map((race) => race.year)));
+  const meetings = (await Promise.all(years.map(async (year) => {
+    try {
       const response = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`, {
-        cache: "no-store", signal: AbortSignal.timeout(2500),
+        cache: "no-store",
+        headers: { "User-Agent": "F1MLPredicts/0.1.0 NextJS" },
+        signal: AbortSignal.timeout(5000),
       });
       return response.ok ? ((await response.json()) as OpenF1Meeting[]) : [];
-    }))).flat();
-
-    for (const race of races) {
-      const meeting = meetings.find((item) => {
-        if (!item.circuit_image) return false;
-        return isMatchingOpenF1Meeting(race, item);
-      });
-      if (meeting?.circuit_image) output.set(race.raceId, meeting.circuit_image);
+    } catch {
+      return [];
     }
-  } catch {
-    // SVG outline remains the deterministic fallback.
+  }))).flat();
+
+  for (const race of races) {
+    const meeting = meetings.find((item) => {
+      if (!item.circuit_image) return false;
+      return isMatchingOpenF1Meeting(race, item);
+    });
+    if (meeting?.circuit_image) output.set(race.raceId, meeting.circuit_image);
   }
+
   return output;
 }
 
@@ -379,17 +382,16 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
   );
   const jolpicaByNumber = await readJolpicaDriverInfo(latestDatasetYear);
   const futureRaces = races.filter((race) => race.status === "future");
-  const [jolpicaRaceDrivers, openF1RaceDrivers, circuitImagesByRaceId] = await Promise.all([
-    readJolpicaRaceDrivers(futureRaces),
-    readOpenF1RaceDrivers(futureRaces),
-    readOpenF1CircuitImages(futureRaces),
-  ]);
+  // Future-race participant enrichment is not needed by the calendar or
+  // prediction roster. Keeping it out of this request prevents slow third
+  // party calls from making the /races page fail in a serverless deploy.
+  const circuitImagesByRaceId = await readOpenF1CircuitImages(futureRaces);
   for (const race of futureRaces) {
     const circuitImageUrl = circuitImagesByRaceId.get(race.raceId) ?? null;
     race.circuitImageUrl = circuitImageUrl;
     race.circuitImageSource = circuitImageUrl ? "openf1" : null;
   }
-  const raceApiDrivers = { ...openF1RaceDrivers, ...jolpicaRaceDrivers };
+  const raceApiDrivers = {};
 
   const latestRaceId = Math.max(
     ...resultRows.map((row) => Number(row.raceId)).filter(Number.isFinite),

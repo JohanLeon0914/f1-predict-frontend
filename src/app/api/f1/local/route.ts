@@ -3,6 +3,8 @@ import {
   getLocalF1DataServer,
 } from "@/lib/local-f1-data-server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const data = await getLocalF1DataServer();
