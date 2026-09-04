@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   if (!isPremium && used >= 1) {
     return NextResponse.json(
-      { detail: "Los usuarios gratuitos solo pueden hacer 1 prediccion por pelea." },
+      { detail: "Free users can only make one prediction per fight." },
       { status: 403 },
     );
   }

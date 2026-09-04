@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         allowed: false,
-        detail: "Los usuarios gratuitos solo pueden hacer 1 prediccion por pelea.",
+        detail: "Free users can only make one prediction per fight.",
         is_premium: false,
         limit: 1,
         remaining: 0,
