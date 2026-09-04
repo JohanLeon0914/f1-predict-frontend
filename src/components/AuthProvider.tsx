@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error: authError } = await supabaseAuth.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/races`,
+          redirectTo: `${window.location.origin}${window.location.pathname}${window.location.search}`,
         },
       });
       if (authError) throw authError;

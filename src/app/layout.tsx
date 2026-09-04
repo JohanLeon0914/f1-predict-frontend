@@ -15,13 +15,13 @@ export const metadata: Metadata = {
     template: `%s | ${siteName}`,
   },
   description:
-    "GRDX1 publishes Formula 1 machine-learning race predictions, public analysis pages, and motorsport data stories.",
+    "GRDX1 publishes machine-learning sports predictions, public analysis pages, and competitive data stories.",
   other: {
     "google-adsense-account": adsenseClient,
   },
   openGraph: {
     description:
-      "GRDX1 publishes Formula 1 machine-learning race predictions, public analysis pages, and motorsport data stories.",
+      "GRDX1 publishes machine-learning sports predictions, public analysis pages, and competitive data stories.",
     siteName,
     title: siteName,
     type: "website",

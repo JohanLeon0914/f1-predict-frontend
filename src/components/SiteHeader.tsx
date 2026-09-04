@@ -4,14 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { sports } from "@/lib/sports";
 
 const navItems = [
-  { href: "/races", label: "Races", activePath: "/races" },
-  { href: "/analysis", label: "Analysis", activePath: "/analysis" },
-  { href: "/support", label: "Support", activePath: "/support" },
   { href: "/#how-it-works", label: "How it works", activePath: null },
-  { href: "/#who-we-are", label: "About & Contact", activePath: null },
+  { href: "/#who-we-are", label: "About", activePath: null },
+  { href: "/support", label: "Support", activePath: "/support" },
 ];
 
 export function SiteHeader() {
@@ -43,6 +43,30 @@ export function SiteHeader() {
           />
         </Link>
         <nav className={`site-nav ${menuOpen ? "site-nav-open" : ""}`} id="mobile-navigation">
+          <div className="sports-nav">
+            <button className="nav-link sports-nav-trigger" type="button">
+              Sports <span aria-hidden="true">⌄</span>
+            </button>
+            <div className="sports-dropdown" aria-label="Sports">
+              <p>Sports</p>
+              {sports.map((sport) => (
+                <Link
+                  className="sports-dropdown-link"
+                  href={sport.href}
+                  key={sport.href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{ "--sport-accent": sport.accent } as CSSProperties}
+                >
+                  <span>{sport.shortName}</span>
+                  <b>
+                    {sport.name}
+                    <small>{sport.description}</small>
+                  </b>
+                  <i aria-hidden="true">→</i>
+                </Link>
+              ))}
+            </div>
+          </div>
           {navItems.map((item) => {
             const isActive =
               item.activePath !== null &&

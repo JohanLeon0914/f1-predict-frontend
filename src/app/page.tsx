@@ -1,26 +1,23 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/LandingPage";
-import { getLocalF1DataServer } from "@/lib/local-f1-data-server";
-import { absoluteUrl, siteName } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: siteName,
+  title: "GRDX1 | AI Sports Predictions & Analytics",
   description:
-    "GRDX1 is an independent Formula 1 analytics project focused on machine-learning race predictions and public race analysis pages.",
+    "Explore machine learning-powered sports predictions and analysis for Formula 1, UFC and future GRDX1 models.",
   alternates: {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
     description:
-      "GRDX1 is an independent Formula 1 analytics project focused on machine-learning race predictions and public race analysis pages.",
-    title: siteName,
+      "Explore machine learning-powered sports predictions and analysis for Formula 1, UFC and future GRDX1 models.",
+    title: "GRDX1 | AI Sports Predictions & Analytics",
     type: "website",
     url: absoluteUrl("/"),
   },
 };
 
-export default async function Home() {
-  const localData = await getLocalF1DataServer();
-
-  return <LandingPage initialData={localData} />;
+export default function Home() {
+  return <LandingPage />;
 }

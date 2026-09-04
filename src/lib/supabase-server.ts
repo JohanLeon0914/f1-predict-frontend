@@ -123,3 +123,18 @@ export async function getMonthlyRacePredictionCount(
   if (error) throw error;
   return count ?? 0;
 }
+
+export async function getUfcFightPredictionCount(
+  supabase: SupabaseServerClient,
+  userId: string,
+  fightKey: string,
+) {
+  const { count, error } = await supabase
+    .from("ufc_predictions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("fight_key", fightKey);
+
+  if (error) throw error;
+  return count ?? 0;
+}

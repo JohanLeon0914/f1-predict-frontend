@@ -3,81 +3,39 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CircuitSilhouette } from "@/components/CircuitSilhouette";
-import { getLocalF1Data } from "@/lib/f1-ranker-api";
+import type { CSSProperties } from "react";
 import { contactEmail, socialLinks } from "@/lib/site";
-import type { LocalF1Data, Race } from "@/lib/types";
+import { sports } from "@/lib/sports";
 
-const features = [
-  ["UPCOMING EVENTS", "Discover future races."],
-  ["AI PREDICTIONS", "Explore predicted race results."],
-  ["RACE ANALYTICS", "Read driver and circuit signals."],
-  ["HISTORICAL DATA", "Compare previous race outcomes."],
+const modelColumns = [
+  [
+    "01",
+    "HISTORICAL DATA",
+    "Performance, event and competition data are transformed into model-ready features.",
+    "DATA",
+  ],
+  [
+    "02",
+    "SPORT-SPECIFIC MODELS",
+    "Each prediction model is developed around the structure and characteristics of its sport.",
+    "ML",
+  ],
+  [
+    "03",
+    "EXPLAINABLE RESULTS",
+    "Go beyond the final prediction and explore the data and factors behind the model output.",
+    "OUT",
+  ],
 ];
 
-const steps = [
-  ["01", "CHOOSE A RACE"],
-  ["02", "ANALYZE THE DATA"],
-  ["03", "GENERATE PREDICTION"],
-  ["04", "EXPLORE RESULTS"],
-];
+const pipeline = [
+  ["01", "DATA INPUT", ["Historical results", "Performance metrics", "Event information"], "DATA"],
+  ["02", "ML MODEL", ["Sport-specific feature engineering", "Machine learning inference"], "ML"],
+  ["03", "ANALYSIS", ["Predicted ranking / outcome", "Relevant statistics", "Model explanations"], "OUT"],
+] as const;
 
-const countryCodes: Record<string, string> = {
-  Australia: "AU",
-  Azerbaijan: "AZ",
-  Bahrain: "BH",
-  Belgium: "BE",
-  Brazil: "BR",
-  Canada: "CA",
-  China: "CN",
-  France: "FR",
-  Hungary: "HU",
-  Italy: "IT",
-  Japan: "JP",
-  Mexico: "MX",
-  Monaco: "MC",
-  Netherlands: "NL",
-  Qatar: "QA",
-  Saudi: "SA",
-  Singapore: "SG",
-  Spain: "ES",
-  Turkey: "TR",
-  UAE: "AE",
-  "United Kingdom": "UK",
-  "United States": "US",
-};
-
-function formatLandingDate(value: string) {
-  const date = new Date(`${value}T00:00:00`);
-  return new Intl.DateTimeFormat("en-US", { day: "2-digit", month: "short" })
-    .format(date)
-    .toUpperCase();
-}
-
-function countryCode(country?: string) {
-  return countryCodes[country ?? ""] ?? country?.slice(0, 2).toUpperCase() ?? "F1";
-}
-
-type LandingPageProps = {
-  initialData?: LocalF1Data | null;
-};
-
-export function LandingPage({ initialData = null }: LandingPageProps) {
+export function LandingPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const initialRaces = initialData?.races.filter((race) => race.status === "future").slice(0, 3) ?? [];
-  const [races, setRaces] = useState<Race[]>(initialRaces);
-  const [racesLoading, setRacesLoading] = useState(!initialRaces.length);
-
-  useEffect(() => {
-    const applyLocalData = (data: LocalF1Data) => {
-      setRaces(data.races.filter((race) => race.status === "future").slice(0, 3));
-    };
-
-    getLocalF1Data({ initialData, onUpdate: applyLocalData })
-      .then((data) => setRaces(data.races.filter((race) => race.status === "future").slice(0, 3)))
-      .catch(() => setRaces([]))
-      .finally(() => setRacesLoading(false));
-  }, [initialData]);
 
   useEffect(() => {
     let frame = 0;
@@ -99,85 +57,184 @@ export function LandingPage({ initialData = null }: LandingPageProps) {
 
   return (
     <div
-      className="landing"
-      style={
-        {
-          "--hero-progress": scrollProgress,
-        } as React.CSSProperties
-      }
+      className="landing platform-landing"
+      style={{ "--hero-progress": scrollProgress } as CSSProperties}
     >
-      <section className="hero-section">
-        <Image
-          alt="Generic motorsport car racing at sunset"
-          className="hero-image"
-          fill
-          priority
-          sizes="100vw"
-          src="/mockup/hero-image.png"
-        />
-        <div className="hero-vignette" />
-        <div className="hero-fade" />
-        <div className="hero-grid" />
+      <section className="platform-hero">
+        <div className="platform-hero-panel platform-hero-panel-f1">
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="platform-hero-image"
+            fill
+            priority
+            sizes="(max-width: 760px) 100vw, 58vw"
+            src="/UFC/f1_hero.png"
+          />
+        </div>
+        <div className="platform-hero-panel platform-hero-panel-ufc">
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="platform-hero-image"
+            fill
+            priority
+            sizes="(max-width: 760px) 100vw, 42vw"
+            src="/UFC/ufc_hero.png"
+          />
+        </div>
+        <div className="platform-hero-overlay" />
+        <div className="platform-hero-grid" />
 
-        <div className="hero-content">
-          <p className="tech-label">RACE INTELLIGENCE</p>
+        <div className="platform-hero-content reveal">
+          <p className="tech-label">AI SPORTS PREDICTIONS</p>
           <h1>
-            PREDICT.
-            <br />
-            ANALYZE.
-            <br />
-            <span>EVOLVE.</span>
+            Data-driven predictions.
+            <span>Built for competition.</span>
           </h1>
-          <p className="hero-copy">AI-powered motorsport predictions.</p>
-          <Link className="red-cta" href="/races">
-            Explore Races <span>→</span>
-          </Link>
+          <p>
+            Machine learning models that analyze real-world performance data to generate rankings,
+            matchup predictions and explainable insights.
+          </p>
+          <div className="platform-hero-actions">
+            <Link className="red-cta" href="/f1">
+              Explore Formula 1 <span>→</span>
+            </Link>
+            <Link className="button-secondary" href="/ufc">
+              Explore UFC <span>→</span>
+            </Link>
+          </div>
+          <small>FORMULA 1  •  UFC</small>
         </div>
 
-        <div className="hero-telemetry" aria-hidden="true">
-          <span>SECTOR 03</span>
-          <span>RACE PACE</span>
-          <span>MODEL READY</span>
+        <div className="platform-hero-metric metric-f1" aria-hidden="true">
+          <span>SPEED</span>
+          <span>DATA</span>
+          <span>PRECISION</span>
         </div>
-
-        <div className="scroll-cue" aria-hidden="true">
-          <span />
-          <small>SCROLL</small>
+        <div className="platform-hero-metric metric-ufc" aria-hidden="true">
+          <span>SKILL</span>
+          <span>STRATEGY</span>
+          <span>DISCIPLINE</span>
         </div>
       </section>
 
-      <section className="dark-entry" id="about">
-        <p className="tech-label reveal">BUILT FOR RACING DATA</p>
-        <h2 className="reveal">Predict what happens next.</h2>
+      <section className="landing-section sport-selector-section" id="models">
+        <div className="section-heading reveal">
+          <div>
+            <p className="tech-label">MODELS</p>
+            <h2>Choose your sport</h2>
+            <p>
+              Each sport uses a model designed around its own data, performance indicators and
+              competitive structure.
+            </p>
+          </div>
+        </div>
+        <div className="sport-card-grid">
+          {sports.map((sport) => (
+            <Link
+              className="sport-card reveal"
+              href={sport.href}
+              key={sport.href}
+              style={{ "--sport-accent": sport.accent } as CSSProperties}
+            >
+              <div className="sport-card-visual">
+                <Image alt="" fill sizes="(max-width: 760px) 100vw, 50vw" src={sport.heroImage} />
+              </div>
+              <div className="sport-card-body">
+                <p>{sport.name.toUpperCase()}</p>
+                <h3>{sport.shortName === "F1" ? "AI Race Predictions" : "AI Fight Predictions"}</h3>
+                <span>
+                  {sport.shortName === "F1"
+                    ? "Analyze drivers, constructors, circuits, qualifying performance and historical race data."
+                    : "Analyze fighter performance, styles, matchup characteristics and historical fight data."}
+                </span>
+                <div className="sport-tags">
+                  {sport.tags.map((tag) => (
+                    <i key={tag}>{tag}</i>
+                  ))}
+                </div>
+                <strong>
+                  Explore {sport.name} <em>→</em>
+                </strong>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section model-difference-section" id="about">
+        <div className="model-difference-copy reveal">
+          <h2>
+            One platform.
+            <span>Different models.</span>
+          </h2>
+          <p>
+            Every sport behaves differently. GRDX1 uses sport-specific machine learning models
+            instead of applying the same prediction logic everywhere.
+          </p>
+        </div>
+        <div className="model-principles">
+          {modelColumns.map(([number, title, body, icon]) => (
+            <article className="model-principle reveal" key={number}>
+              <div>
+                <span>{number}</span>
+                <b aria-hidden="true">{icon}</b>
+              </div>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section pipeline-section" id="how-it-works">
+        <div className="pipeline-heading reveal">
+          <p className="tech-label">THE PROCESS</p>
+          <h2>How GRDX1 works</h2>
+          <p>From real-world data to model-driven insights.</p>
+        </div>
+        <div className="pipeline-flow">
+          {pipeline.map(([number, label, items, symbol], index) => (
+            <article className="pipeline-step reveal" key={number}>
+              <span aria-hidden="true">{symbol}</span>
+              <small>{number}</small>
+              <h3>{label}</h3>
+              <ul>
+                {items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              {index < pipeline.length - 1 ? <b aria-hidden="true">→</b> : null}
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="landing-section about-contact-section" id="who-we-are">
         <div className="about-copy reveal">
           <p className="tech-label">WHO WE ARE</p>
-          <h2>We are building the motorsport analysis tools we wanted to use.</h2>
+          <h2>We are building the sports analysis tools we wanted to use.</h2>
           <p>
-            GRDX1 is an independent motorsport analytics project that develops machine-learning
-            models to analyze Formula 1 race data and generate data-driven race predictions. We dig
-            into race pace, driver form, circuits, and model signals to make each weekend easier to
-            read.
+            GRDX1 is an independent sports analytics project that develops machine-learning models
+            to analyze competitive data and generate model-driven predictions, rankings and
+            explainable analysis.
           </p>
           <p>
-            GRDX1 is an independent project and is not affiliated with Formula 1, the FIA, Formula
-            One Management, or any Formula 1 team. F1 is our starting grid, but the plan is to
-            branch into other sports as the project grows.
+            GRDX1 is not affiliated with Formula 1, UFC, their governing bodies, teams,
+            promotions, athletes or official organizations. Each model is built as an independent
+            data experiment.
           </p>
         </div>
 
         <div className="contact-panel reveal" id="contact">
           <p className="tech-label">CONTACT</p>
           <h2>Come hang out with us.</h2>
-          <p>
-            For general questions, feedback, or business inquiries, reach out here:
-          </p>
+          <p>For general questions, feedback, or business inquiries, reach out here:</p>
           <p>
             <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
           </p>
-          <p>We also post race takes, updates, experiments, and whatever we are building next.</p>
+          <p>We also post updates, experiments, analysis, and whatever we are building next.</p>
           <div className="social-links" aria-label="GRDX1 social links">
             {socialLinks.map((item) => (
               <a href={item.href} key={item.label} rel="noreferrer" target="_blank">
@@ -188,138 +245,41 @@ export function LandingPage({ initialData = null }: LandingPageProps) {
         </div>
       </section>
 
-      <section className="landing-section upcoming-section">
-        <div className="section-heading reveal">
-            <p className="tech-label">UPCOMING RACES</p>
-          <h2>Select the next event.</h2>
-          <Link href="/races">View all races →</Link>
-        </div>
-        <div className="race-strip">
-          {racesLoading
-            ? Array.from({ length: 3 }, (_, index) => (
-                <article className="event-tile event-tile-skeleton" aria-hidden="true" key={`race-skeleton-${index}`}>
-                  <span className="skeleton-line skeleton-status" />
-                  <span className="skeleton-line skeleton-title" />
-                  <span className="skeleton-track" />
-                  <span className="skeleton-line skeleton-date" />
-                </article>
-              ))
-            : races.map((race, index) => (
-                <Link className="event-tile reveal" href={`/races?race=${race.raceId}`} key={race.raceId}>
-                  <div>
-                    <span>{index === 0 ? "NEXT" : "OPEN"}</span>
-                    <strong>{race.name}</strong>
-                  </div>
-                  <CircuitSilhouette className="event-track" race={race} />
-                  <footer>
-                    <b>{formatLandingDate(race.date)}</b>
-                    <span>{countryCode(race.circuit?.country)}</span>
-                  </footer>
-                </Link>
-              ))}
-        </div>
-      </section>
-
-      <section className="landing-section prediction-experience">
-        <div className="prediction-copy reveal">
-          <p className="tech-label">RACE INTELLIGENCE</p>
-          <h2>
-            SEE THE FUTURE
-            <br />
-            BEFORE THE LIGHTS GO OUT.
-          </h2>
-          <p>Choose a race and prepare a data-backed prediction before the lights go out.</p>
-          <Link className="red-cta" href="/races">
-            Browse Races <span>→</span>
-          </Link>
-        </div>
-
-        <div className="dashboard-mock reveal">
-          <aside>
-            <b>Predict Race</b>
-            <span>Dashboard</span>
-            <span>Races</span>
-            <span>Race setup</span>
-            <span>History</span>
-          </aside>
-          <main>
-            <div className="mock-card mock-wide">
-              <small>UPCOMING RACE</small>
-              <h3>Monaco Grand Prix</h3>
-              <p>Race date · Circuit confidence · Dry conditions</p>
-              <svg viewBox="0 0 200 90">
-                <path d="M22 55 C35 22, 77 21, 94 43 S130 65, 151 33 C160 18, 183 28, 171 48 C158 70, 121 78, 86 64 C59 53, 43 77, 22 55Z" />
-              </svg>
-            </div>
-            <div className="mock-card prediction-list">
-              <small>TOP PREDICTION</small>
-              {["Driver A", "Driver B", "Driver C", "Driver D", "Driver E"].map((driver, index) => (
-                <div key={driver}>
-                  <span>{index + 1}. {driver}</span>
-                  <i style={{ width: `${72 - index * 11}%` }} />
-                  <b>{[31, 23, 18, 15, 13][index]}%</b>
-                </div>
-              ))}
-            </div>
-          </main>
-          <section>
-            <div className="probability-ring">31%</div>
-            <div className="mock-card compact">
-              <small>TRACK STATS</small>
-              <p>Turns 19</p>
-              <p>Length 3.337 km</p>
-              <p>Lap pace 1:12</p>
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <section className="photo-break">
+      <section className="platform-positioning">
         <Image
-          alt="Generic racing circuit at high speed"
-          className="photo-break-image"
+          alt=""
+          aria-hidden="true"
+          className="positioning-track"
           fill
           sizes="100vw"
-          src="/mockup/hero-image.png"
+          src="/UFC/pista_esquina_inferior_izquierda.png"
         />
-        <div className="photo-break-fade" />
-        <h2 className="reveal">
-          DATA DOESN&apos;T GUESS.
-          <br />
-          IT <span>LEARNS.</span>
-        </h2>
-      </section>
-
-      <section className="landing-section feature-line">
-        {features.map(([title, copy]) => (
-          <article className="feature-item reveal" key={title}>
-            <span />
-            <h3>{title}</h3>
-            <p>{copy}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="landing-section process-section" id="how-it-works">
-        <p className="tech-label reveal">HOW IT WORKS</p>
-        <div className="process-line">
-          {steps.map(([number, title]) => (
-            <article className="process-step reveal" key={number}>
-              <span>{number}</span>
-              <h3>{title}</h3>
-            </article>
-          ))}
+        <Image
+          alt=""
+          aria-hidden="true"
+          className="positioning-cage"
+          fill
+          sizes="100vw"
+          src="/UFC/jaula_esquina_inferior_derecha.png"
+        />
+        <div className="positioning-content reveal">
+          <p className="tech-label">BUILT AROUND THE DATA</p>
+          <h2>
+            Not picks.
+            <br />
+            Not betting advice.
+            <br />
+            <span>Model-driven analysis.</span>
+          </h2>
+          <p>
+            GRDX1 is an experimental sports analytics platform that uses historical and
+            event-specific data to explore how machine learning can analyze competitive sports.
+          </p>
+          <a className="button-secondary" href="#models">
+            Explore the models <span>→</span>
+          </a>
         </div>
       </section>
-
-      <section className="final-cta">
-        <div className="cta-glow" />
-        <h2 className="reveal">READY FOR THE NEXT RACE?</h2>
-        <Link className="red-cta reveal" href="/races">
-          Browse Races <span>→</span>
-        </Link>
-      </section>
-
     </div>
   );
 }
