@@ -5,25 +5,16 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 import { useAuth } from "@/components/AuthProvider";
-import {
-  buildUfcFightKey,
-  checkUfcPredictionQuota,
-  saveUfcPrediction,
-} from "@/lib/ufc-predictions";
-import {
-  getUfcHealth,
-  getUfcMetrics,
-  predictUfcFight,
-  type UfcMetrics,
-  type UfcPredictionResponse,
-} from "@/lib/ufc-ranker-api";
-import type { UfcFighter } from "@/lib/ufc-data";
+import { checkUfcPredictionQuota, saveUfcPrediction } from "@/lib/ufc-predictions";
+import { predictUfcFight, type UfcPredictionResponse } from "@/lib/ufc-ranker-api";
+import type { FighterPortrait } from "@/lib/thesportsdb";
+import type { UfcDisplayEvent, UfcFighter } from "@/lib/ufc-data";
 
-const modelStats = [
-  ["Accuracy", "test", "accuracy"],
-  ["ROC AUC", "test", "roc_auc"],
-  ["Log loss", "test", "log_loss"],
-  ["Brier", "test", "brier_score"],
+const featureItems = [
+  ["FIGHT DATA", "Historical results, methods and event context."],
+  ["MATCHUP MODELS", "Opponent-specific outputs shaped around the fight."],
+  ["EVENT FLOW", "Upcoming cards feed the same prediction pipeline."],
+  ["EXPLAINABLE OUTPUT", "Confidence, probabilities and model notes."],
 ] as const;
 
 const defaultFight = {
@@ -34,15 +25,81 @@ const defaultFight = {
   weight_class: "Lightweight",
 };
 
-function metricValue(metrics: UfcMetrics | null, split: string, key: string) {
-  const value = metrics?.metrics?.[split]?.[key];
-  return typeof value === "number" ? value.toFixed(key.includes("loss") ? 3 : 2) : "--";
+function getPortrait(portraits: FighterPortrait[], name?: string | null) {
+  return portraits.find((portrait) => portrait.originalName.toLowerCase() === name?.toLowerCase());
 }
 
-export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
+function fighterLastName(name: string) {
+  return name.split(" ").at(-1) ?? name;
+}
+
+function formatEventDate(dateValue: string) {
+  const date = new Date(`${dateValue}T00:00:00`);
+  return {
+    day: new Intl.DateTimeFormat("en-US", { day: "2-digit" }).format(date),
+    label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(date).toUpperCase(),
+    year: new Intl.DateTimeFormat("en-US", { year: "numeric" }).format(date),
+  };
+}
+
+function FutureFightCard({ event, portraits }: { event: UfcDisplayEvent; portraits: FighterPortrait[] }) {
+  const date = formatEventDate(event.date);
+  const mainFight = event.fights[0];
+  const redPortrait = getPortrait(portraits, mainFight?.red.name);
+  const bluePortrait = getPortrait(portraits, mainFight?.blue.name);
+
+  return (
+    <Link className="ufc-fight-card reveal" href={`/events/${event.eventId}`}>
+      <div className="ufc-fight-card-visual">
+        <div className="ufc-fight-card-date">
+          <span>{date.label}</span>
+          <strong>{date.day}</strong>
+          <small>{date.year}</small>
+        </div>
+        <div className="ufc-fight-card-fighters">
+          <div className="ufc-fight-card-face red-face">
+            {redPortrait?.imageUrl ? (
+              <Image alt="" height={200} src={redPortrait.imageUrl} unoptimized width={200} />
+            ) : (
+              <Image alt="" height={200} src="/UFC/silueta.png" width={200} />
+            )}
+          </div>
+          <div className="ufc-fight-card-vs">VS</div>
+          <div className="ufc-fight-card-face blue-face">
+            {bluePortrait?.imageUrl ? (
+              <Image alt="" height={200} src={bluePortrait.imageUrl} unoptimized width={200} />
+            ) : (
+              <Image alt="" height={200} src="/UFC/silueta.png" width={200} />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="ufc-fight-card-copy">
+        <small>{event.shortName}</small>
+        <h3>
+          {mainFight
+            ? `${fighterLastName(mainFight.red.name)} vs ${fighterLastName(mainFight.blue.name)}`
+            : event.name}
+        </h3>
+        <p>
+          {event.venue} · {event.location}
+        </p>
+        <span>View event →</span>
+      </div>
+    </Link>
+  );
+}
+
+export function UfcLandingPage({
+  fighters,
+  events,
+  portraits,
+}: {
+  fighters: UfcFighter[];
+  events: UfcDisplayEvent[];
+  portraits: FighterPortrait[];
+}) {
   const { loading: authLoading, premiumLoading, user } = useAuth();
-  const [health, setHealth] = useState<"checking" | "ok" | "error">("checking");
-  const [metrics, setMetrics] = useState<UfcMetrics | null>(null);
   const [redFighterName, setRedFighterName] = useState(defaultFight.red_fighter_name);
   const [blueFighterName, setBlueFighterName] = useState(defaultFight.blue_fighter_name);
   const [fightDate, setFightDate] = useState(defaultFight.fight_date);
@@ -55,26 +112,10 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    Promise.allSettled([getUfcHealth(), getUfcMetrics()]).then(([healthResult, metricsResult]) => {
-      setHealth(healthResult.status === "fulfilled" ? "ok" : "error");
-      if (metricsResult.status === "fulfilled") setMetrics(metricsResult.value);
-    });
-  }, []);
-
-  useEffect(() => {
     setHydrated(true);
   }, []);
 
-  const winnerSide = result?.prediction?.winner_side;
-  const redProbability = result?.prediction?.red_win_probability ?? 0;
-  const blueProbability = result?.prediction?.blue_win_probability ?? 0;
-  const winnerName = result?.prediction?.winner_name;
-
-  const confidenceLabel = useMemo(() => {
-    const value = result?.prediction?.confidence_pct;
-    return typeof value === "number" ? `${value.toFixed(1)}%` : "--";
-  }, [result]);
-
+  const futureEvents = events.slice(0, 3);
   const redFighter = useMemo(
     () => fighters.find((fighter) => fighter.name === redFighterName) ?? null,
     [fighters, redFighterName],
@@ -83,16 +124,12 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
     () => fighters.find((fighter) => fighter.name === blueFighterName) ?? null,
     [fighters, blueFighterName],
   );
+  const winner = result?.prediction;
+
   const fightKey = useMemo(
     () =>
       redFighter && blueFighter
-        ? buildUfcFightKey({
-            blueFighterId: blueFighter.fighterId,
-            fightDate,
-            redFighterId: redFighter.fighterId,
-            titleFight,
-            weightClass,
-          })
+        ? `${redFighter.fighterId}:${blueFighter.fighterId}:${fightDate}:${weightClass}:${titleFight ? "1" : "0"}`
         : null,
     [blueFighter, fightDate, redFighter, titleFight, weightClass],
   );
@@ -110,15 +147,16 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
       return;
     }
 
+    if (!fightKey) {
+      setError("Fight key unavailable.");
+      return;
+    }
+
     setError(null);
     setResult(null);
     setRunning(true);
 
     try {
-      if (!fightKey) {
-        throw new Error("Fight key unavailable.");
-      }
-
       await checkUfcPredictionQuota({ fight_key: fightKey });
 
       const prediction = await predictUfcFight({
@@ -155,7 +193,6 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
 
   return (
     <div className="ufc-page">
-      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       <section className="ufc-hero">
         <Image
           alt=""
@@ -174,8 +211,8 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
             <span>Built around matchup data.</span>
           </h1>
           <p>
-            Analyze fighter history, style indicators, head-to-head context and model confidence
-            before exploring the final prediction output.
+            Machine learning models that analyze fighter history, matchup context and event data
+            to produce model-driven fight analysis.
           </p>
           <div className="platform-hero-actions">
             <a className="button-primary ufc-primary" href="#predictor">
@@ -185,42 +222,51 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
               Explore events <span>→</span>
             </Link>
           </div>
+          <small>UFC • FIGHT ANALYSIS • MODEL OUTPUT</small>
         </div>
-        <div className="ufc-hero-panel reveal" aria-hidden="true">
-          <span>MODEL STATUS</span>
-          <b>{health === "checking" ? "CHECKING" : health === "ok" ? "ONLINE" : "OFFLINE"}</b>
-          <small>Fight prediction API</small>
+        <div className="scroll-cue ufc-scroll-cue" aria-hidden="true">
+          <span />
+          <small>SCROLL</small>
         </div>
       </section>
 
-      <section className="landing-section ufc-model-section">
-        <div className="pipeline-heading reveal">
-          <p className="tech-label ufc-label">MODEL</p>
-          <h2>Prediction system</h2>
-          <p>
-            The UFC model estimates red-corner and blue-corner win probabilities from historical
-            fight features, then exposes confidence and explanation signals.
-          </p>
+      <section className="dark-entry ufc-entry">
+        <p className="tech-label reveal">BUILT AROUND THE DATA</p>
+        <h2 className="reveal">Fight analysis designed for competition.</h2>
+        <p className="reveal">
+          GRDX1 turns historical results, fighter attributes and event-specific context into
+          machine learning outputs you can review before the fight.
+        </p>
+      </section>
+
+      <section className="landing-section ufc-future-section">
+        <div className="section-heading reveal">
+          <p className="tech-label ufc-label">UPCOMING FIGHTS</p>
+          <h2>Select the next event.</h2>
+          <Link href="/events">View all events →</Link>
         </div>
-        <div className="ufc-metric-grid">
-          {modelStats.map(([label, split, key]) => (
-            <article className="ufc-stat reveal" key={key}>
-              <span>{label}</span>
-              <strong>{metricValue(metrics, split, key)}</strong>
-              <small>Test split</small>
-            </article>
+        <div className="ufc-fight-grid">
+          {futureEvents.map((event) => (
+            <FutureFightCard event={event} key={event.eventId} portraits={portraits} />
           ))}
         </div>
       </section>
 
-      <section className="landing-section ufc-predictor-section" id="predictor">
-        <div className="ufc-predictor-copy reveal">
+      <section className="landing-section prediction-experience ufc-predictor-section" id="predictor">
+        <div className="prediction-copy reveal">
           <p className="tech-label ufc-label">PREDICTION</p>
-          <h2>Build a matchup</h2>
+          <h2>
+            BUILD A
+            <br />
+            MATCHUP.
+          </h2>
           <p>
             Choose fighters by name. GRDX1 maps each selection to the model dataset internally and
-            sends only the required fighter identifiers to the prediction API.
+            sends only the fighter identifiers needed by the prediction API.
           </p>
+          <Link className="red-cta" href="/events">
+            Browse events <span>→</span>
+          </Link>
         </div>
 
         <div className="ufc-predictor-panel reveal">
@@ -228,10 +274,7 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
           <div className="ufc-corner-grid">
             <label className="field">
               Red fighter
-              <select
-                value={redFighterName}
-                onChange={(event) => setRedFighterName(event.target.value)}
-              >
+              <select value={redFighterName} onChange={(event) => setRedFighterName(event.target.value)}>
                 {fighters.map((fighter) => (
                   <option key={fighter.fighterId} value={fighter.name}>
                     {fighter.name}
@@ -241,10 +284,7 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
             </label>
             <label className="field">
               Blue fighter
-              <select
-                value={blueFighterName}
-                onChange={(event) => setBlueFighterName(event.target.value)}
-              >
+              <select value={blueFighterName} onChange={(event) => setBlueFighterName(event.target.value)}>
                 {fighters.map((fighter) => (
                   <option key={fighter.fighterId} value={fighter.name}>
                     {fighter.name}
@@ -267,11 +307,7 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
           <div className="ufc-corner-grid">
             <label className="field">
               Fight date
-              <input
-                type="date"
-                value={fightDate}
-                onChange={(event) => setFightDate(event.target.value)}
-              />
+              <input type="date" value={fightDate} onChange={(event) => setFightDate(event.target.value)} />
             </label>
             <label className="field">
               Weight class
@@ -290,27 +326,60 @@ export function UfcLandingPage({ fighters }: { fighters: UfcFighter[] }) {
             />
             Title fight
           </label>
-          <button className="button-primary ufc-primary" disabled={running || (hydrated && (authLoading || premiumLoading))} onClick={runPrediction} type="button">
+          <button
+            className="button-primary ufc-primary"
+            disabled={running || !hydrated || authLoading || premiumLoading}
+            onClick={runPrediction}
+            type="button"
+          >
             {running ? "Running model" : "Run prediction"} <span>→</span>
           </button>
           {error ? <div className="wizard-error">{error}</div> : null}
 
           <div className="ufc-result">
             <div className="ufc-probabilities">
-              <div className={winnerSide === "red" ? "active" : ""}>
+              <div className={winner?.winner_side === "red" ? "active" : ""}>
                 <span>Red</span>
-                <strong>{result ? `${(redProbability * 100).toFixed(1)}%` : "--"}</strong>
+                <strong>{winner ? `${(winner.red_win_probability * 100).toFixed(1)}%` : "--"}</strong>
               </div>
-              <div className={winnerSide === "blue" ? "active" : ""}>
+              <div className={winner?.winner_side === "blue" ? "active" : ""}>
                 <span>Blue</span>
-                <strong>{result ? `${(blueProbability * 100).toFixed(1)}%` : "--"}</strong>
+                <strong>{winner ? `${(winner.blue_win_probability * 100).toFixed(1)}%` : "--"}</strong>
               </div>
             </div>
             <footer>
               <span>Model output</span>
-              <b>{winnerName ?? "Awaiting prediction"}</b>
-              <small>Confidence {confidenceLabel}</small>
+              <b>{winner?.winner_name ?? "Awaiting prediction"}</b>
+              <small>Confidence {winner ? `${winner.confidence_pct.toFixed(1)}%` : "--"}</small>
             </footer>
+          </div>
+        </div>
+      </section>
+
+      <section className="photo-break ufc-photo-break">
+        <Image
+          alt=""
+          aria-hidden="true"
+          className="photo-break-image"
+          fill
+          sizes="100vw"
+          src="/UFC/jaula_esquina_inferior_derecha.png"
+        />
+        <div className="photo-break-fade" />
+        <div className="ufc-photo-break-content reveal">
+          <h2>
+            DATA DOESN&apos;T GUESS.
+            <br />
+            IT <span>LEARNS.</span>
+          </h2>
+          <div className="feature-line ufc-feature-line">
+            {featureItems.map(([title, copy]) => (
+              <article className="feature-item" key={title}>
+                <span />
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

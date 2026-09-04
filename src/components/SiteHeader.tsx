@@ -14,11 +14,34 @@ const navItems = [
   { href: "/support", label: "Support", activePath: "/support" },
 ];
 
+function getContextualNavItems(pathname: string) {
+  if (pathname.startsWith("/ufc") || pathname.startsWith("/events")) {
+    return [
+      { href: "/events", label: "Events", activePath: "/events" },
+      { href: "/#who-we-are", label: "About", activePath: null },
+      { href: "/support", label: "Support", activePath: "/support" },
+    ];
+  }
+
+  if (pathname.startsWith("/f1") || pathname.startsWith("/races") || pathname.startsWith("/analysis")) {
+    return [
+      { href: "/races", label: "Races", activePath: "/races" },
+      { href: "/analysis", label: "Analysis", activePath: "/analysis" },
+      { href: "/#who-we-are", label: "About", activePath: null },
+      { href: "/support", label: "Support", activePath: "/support" },
+    ];
+  }
+
+  return navItems;
+}
+
 export function SiteHeader() {
   const { foundingSupporter, signInWithGoogle, signOutUser, user } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sportsMenuOpen, setSportsMenuOpen] = useState(false);
+  const [isMobileNav, setIsMobileNav] = useState(false);
   const userInitial =
     user?.user_metadata?.full_name?.slice(0, 1).toUpperCase() ??
     user?.email?.slice(0, 1).toUpperCase() ??
@@ -29,6 +52,24 @@ export function SiteHeader() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 900px)");
+    const update = () => setIsMobileNav(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!menuOpen) setSportsMenuOpen(false);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setSportsMenuOpen(false);
+  }, [pathname]);
+
+  const headerNavItems = getContextualNavItems(pathname);
+
   return (
     <header className={`site-header ${scrolled ? "site-header-scrolled" : ""}`}>
       <div className="site-header-inner mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5">
@@ -43,8 +84,24 @@ export function SiteHeader() {
           />
         </Link>
         <nav className={`site-nav ${menuOpen ? "site-nav-open" : ""}`} id="mobile-navigation">
-          <div className="sports-nav">
-            <button className="nav-link sports-nav-trigger" type="button">
+          <div
+            className={`sports-nav ${sportsMenuOpen && isMobileNav ? "sports-nav-open" : ""}`}
+            onMouseEnter={() => {
+              if (!isMobileNav) setSportsMenuOpen(true);
+            }}
+            onMouseLeave={() => {
+              if (!isMobileNav) setSportsMenuOpen(false);
+            }}
+          >
+            <button
+              aria-expanded={isMobileNav ? sportsMenuOpen : undefined}
+              aria-haspopup="menu"
+              className="nav-link sports-nav-trigger"
+              onClick={() => {
+                if (isMobileNav) setSportsMenuOpen((current) => !current);
+              }}
+              type="button"
+            >
               Sports <span aria-hidden="true">⌄</span>
             </button>
             <div className="sports-dropdown" aria-label="Sports">
@@ -54,7 +111,10 @@ export function SiteHeader() {
                   className="sports-dropdown-link"
                   href={sport.href}
                   key={sport.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setSportsMenuOpen(false);
+                  }}
                   style={{ "--sport-accent": sport.accent } as CSSProperties}
                 >
                   <span>{sport.shortName}</span>
@@ -67,7 +127,7 @@ export function SiteHeader() {
               ))}
             </div>
           </div>
-          {navItems.map((item) => {
+          {headerNavItems.map((item) => {
             const isActive =
               item.activePath !== null &&
               (pathname === item.activePath || pathname.startsWith(`${item.activePath}/`));

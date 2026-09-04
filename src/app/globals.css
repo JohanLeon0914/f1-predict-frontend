@@ -216,7 +216,7 @@ button:disabled {
 }
 
 .sports-nav:hover .sports-dropdown,
-.sports-nav:focus-within .sports-dropdown {
+.sports-nav-open .sports-dropdown {
   opacity: 1;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0) scale(1);
@@ -224,7 +224,7 @@ button:disabled {
 }
 
 .sports-nav:hover .sports-nav-trigger span,
-.sports-nav:focus-within .sports-nav-trigger span {
+.sports-nav-open .sports-nav-trigger span {
   transform: rotate(180deg);
 }
 
@@ -291,6 +291,10 @@ button:disabled {
 .sports-dropdown-link:focus-visible i {
   color: var(--sport-accent);
   transform: translateX(3px);
+}
+
+.sports-nav-trigger {
+  cursor: pointer;
 }
 
 .header-cta,
@@ -621,6 +625,14 @@ pre {
   color: rgb(255 255 255 / 0.66);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
+}
+
+.ufc-scroll-cue span {
+  border-color: rgb(245 185 37 / 0.76);
+}
+
+.ufc-scroll-cue span::after {
+  background: #f5b925;
 }
 
 .dark-entry {
@@ -1149,13 +1161,18 @@ pre {
   position: relative;
 }
 
+.ufc-hero {
+  min-height: 100svh;
+  padding: 9rem 1rem 7rem;
+}
+
 .ufc-events-hero {
   min-height: 36rem;
 }
 
 .ufc-hero-image {
   object-fit: cover;
-  object-position: 66% center;
+  object-position: 58% bottom;
   opacity: 0.58;
 }
 
@@ -1170,6 +1187,8 @@ pre {
 .ufc-hero-content {
   margin: 0 auto;
   max-width: 80rem;
+  display: grid;
+  gap: 0.95rem;
   position: relative;
   width: 100%;
   z-index: 1;
@@ -1179,8 +1198,8 @@ pre {
   font-size: clamp(3.5rem, 7vw, 7rem);
   font-weight: 950;
   letter-spacing: -0.055em;
-  line-height: 0.88;
-  margin-top: 1rem;
+  line-height: 0.94;
+  margin-top: 0.55rem;
   max-width: 11ch;
 }
 
@@ -1193,8 +1212,22 @@ pre {
   color: rgb(255 255 255 / 0.76);
   font-size: clamp(1rem, 1.8vw, 1.28rem);
   line-height: 1.5;
-  margin-top: 1.1rem;
+  margin-top: 0;
   max-width: 37rem;
+}
+
+.ufc-hero-content .platform-hero-actions {
+  margin-top: 0.35rem;
+}
+
+.ufc-hero-content small {
+  color: rgb(255 255 255 / 0.72);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin-top: 0.3rem;
+  text-transform: uppercase;
 }
 
 .ufc-primary {
@@ -1278,6 +1311,176 @@ pre {
   grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.25fr);
 }
 
+.ufc-entry,
+.ufc-future-section {
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+
+.ufc-entry {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.ufc-entry h2 {
+  font-size: clamp(2.1rem, 4.6vw, 4.4rem);
+  font-weight: 950;
+  letter-spacing: -0.05em;
+  line-height: 0.94;
+  max-width: 12ch;
+}
+
+.ufc-entry p:not(.tech-label) {
+  color: rgb(255 255 255 / 0.7);
+  line-height: 1.55;
+  max-width: 42rem;
+}
+
+.ufc-fight-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ufc-fight-card {
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.018)),
+    #08090a;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 8px;
+  display: grid;
+  overflow: hidden;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.ufc-fight-card:hover {
+  border-color: rgb(245 185 37 / 0.48);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.28);
+  transform: translateY(-3px);
+}
+
+.ufc-fight-card-visual {
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.72)),
+    radial-gradient(circle at 50% 20%, rgb(245 185 37 / 0.12), transparent 38%);
+  min-height: 15rem;
+  position: relative;
+}
+
+.ufc-fight-card-date {
+  align-content: start;
+  color: #fff;
+  display: grid;
+  gap: 0.1rem;
+  left: 1rem;
+  position: absolute;
+  top: 1rem;
+  z-index: 2;
+}
+
+.ufc-fight-card-date span,
+.ufc-fight-card-date small {
+  color: rgb(255 255 255 / 0.6);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ufc-fight-card-date strong {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 950;
+  line-height: 0.9;
+}
+
+.ufc-fight-card-fighters {
+  inset: 0;
+  position: absolute;
+}
+
+.ufc-fight-card-face {
+  bottom: 0;
+  position: absolute;
+  top: 0;
+  width: 54%;
+}
+
+.ufc-fight-card-face img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.ufc-fight-card-face.red-face {
+  left: 0;
+}
+
+.ufc-fight-card-face.blue-face {
+  right: 0;
+}
+
+.ufc-fight-card-face.red-face::after,
+.ufc-fight-card-face.blue-face::after {
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.ufc-fight-card-face.red-face::after {
+  background: linear-gradient(90deg, rgb(239 51 64 / 0.18), transparent 70%);
+}
+
+.ufc-fight-card-face.blue-face::after {
+  background: linear-gradient(270deg, rgb(245 185 37 / 0.16), transparent 70%);
+}
+
+.ufc-fight-card-vs {
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 950;
+  left: 50%;
+  letter-spacing: 0.14em;
+  position: absolute;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.8);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.ufc-fight-card-copy {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem 1rem 1.1rem;
+}
+
+.ufc-fight-card-copy small {
+  color: rgb(255 255 255 / 0.5);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ufc-fight-card-copy h3 {
+  font-size: 1.6rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.ufc-fight-card-copy p {
+  color: rgb(255 255 255 / 0.64);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.ufc-fight-card-copy span {
+  color: #f5b925;
+  font-size: 0.86rem;
+  font-weight: 900;
+  margin-top: 0.2rem;
+}
+
 .ufc-predictor-copy h2 {
   font-size: clamp(2.4rem, 5vw, 4.8rem);
   font-weight: 950;
@@ -1300,6 +1503,7 @@ pre {
   display: grid;
   gap: 1rem;
   padding: 1rem;
+  position: relative;
 }
 
 .ufc-corner-grid {
@@ -1994,6 +2198,7 @@ pre {
   display: grid;
   gap: 0.7rem;
   grid-column: 1 / -1;
+  position: relative;
 }
 
 .ufc-main-predictor small,
@@ -2057,6 +2262,7 @@ pre {
 .ufc-compact-predictor {
   display: grid;
   gap: 0.3rem;
+  position: relative;
 }
 
 .ufc-compact-predictor .button-secondary {
@@ -3929,6 +4135,21 @@ pre {
   position: relative;
 }
 
+.ufc-photo-break {
+  display: grid;
+  align-items: start;
+  margin-top: 0;
+  min-height: 72vh;
+  padding: 9vh 1.25rem 4rem;
+}
+
+.ufc-photo-break-content {
+  left: max(1.25rem, calc((100vw - 80rem) / 2 + 1rem));
+  max-width: min(72rem, calc(100vw - 2.5rem));
+  position: relative;
+  z-index: 1;
+}
+
 .photo-break-image {
   filter: saturate(0.88) contrast(1.08);
   object-fit: cover;
@@ -3949,9 +4170,20 @@ pre {
   font-weight: 1000;
   left: max(1.25rem, calc((100vw - 80rem) / 2 + 1rem));
   letter-spacing: -0.06em;
-  line-height: 0.9;
+  line-height: 0.86;
   position: absolute;
-  top: 28%;
+  top: 18%;
+}
+
+.ufc-photo-break h2 {
+  left: auto;
+  position: static;
+  top: auto;
+}
+
+.ufc-feature-line {
+  margin-top: 2rem;
+  max-width: 70rem;
 }
 
 .photo-break span {
@@ -5138,6 +5370,7 @@ pre {
 
   .sports-nav {
     border-bottom: 1px solid var(--border);
+    width: 100%;
     margin-bottom: 0.35rem;
     padding-bottom: 0.45rem;
   }
@@ -5147,13 +5380,16 @@ pre {
   }
 
   .sports-nav-trigger {
+    align-items: center;
     color: rgb(255 255 255 / 0.58);
-    cursor: default;
+    cursor: pointer;
     font-size: 0.72rem;
     font-weight: 900;
     letter-spacing: 0.12em;
+    justify-content: space-between;
+    width: 100%;
     padding: 0.55rem 0.85rem 0.35rem;
-    pointer-events: none;
+    pointer-events: auto;
     text-transform: uppercase;
   }
 
@@ -5167,7 +5403,9 @@ pre {
     border: 0;
     box-shadow: none;
     gap: 0.2rem;
+    display: none;
     left: auto;
+    width: 100%;
     min-width: 0;
     opacity: 1;
     padding: 0;
@@ -5177,12 +5415,17 @@ pre {
     visibility: visible;
   }
 
+  .sports-nav-open .sports-dropdown {
+    display: grid;
+  }
+
   .sports-dropdown p {
     display: none;
   }
 
   .sports-dropdown-link {
     grid-template-columns: 2.2rem 1fr auto;
+    width: 100%;
     padding: 0.7rem 0.85rem;
   }
 

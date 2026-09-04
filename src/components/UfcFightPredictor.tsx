@@ -105,7 +105,7 @@ export function UfcFightPredictor({ compact = false, event, fight, portraits }: 
         <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} variant="inline" />
         <button
           className="button-secondary"
-          disabled={running || (hydrated && (loading || premiumLoading))}
+          disabled={running || !hydrated || loading || premiumLoading}
           onClick={analyzeFight}
           type="button"
         >
@@ -131,7 +131,7 @@ export function UfcFightPredictor({ compact = false, event, fight, portraits }: 
           <p>Analyze stats, recent form and historical data to get the AI prediction for this fight.</p>
           <button
             className="button-primary ufc-primary"
-            disabled={running || (hydrated && (loading || premiumLoading))}
+            disabled={running || !hydrated || loading || premiumLoading}
             onClick={analyzeFight}
             type="button"
           >

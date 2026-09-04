@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { cache } from "react";
 import { getFeaturedFighterPortraits, type FighterPortrait } from "@/lib/thesportsdb";
 
 const DATASET_DIR = path.join(process.cwd(), "public", "UFC", "DATASETS");
@@ -230,7 +231,7 @@ function withRecord(fighter: UfcFighter, records: Map<string, { draws: number; l
   return { ...fighter, record: `${record.wins} - ${record.losses} - ${record.draws}` };
 }
 
-export async function getUfcFighters() {
+export const getUfcFighters = cache(async function getUfcFighters() {
   const [fighterText, fightText] = await Promise.all([
     readFile(path.join(DATASET_DIR, "fighter.csv"), "utf8"),
     readFile(path.join(DATASET_DIR, "fight.csv"), "utf8"),
@@ -242,10 +243,9 @@ export async function getUfcFighters() {
     .filter((fighter) => fighter.name && fighter.fighterId)
     .map((fighter) => withRecord(fighter, records))
     .sort((a, b) => a.name.localeCompare(b.name));
-}
+});
 
-export async function getUfcDisplayEvents(): Promise<UfcDisplayEvent[]> {
-  const fighters = await getUfcFighters();
+function buildDisplayEvents(fighters: UfcFighter[]): UfcDisplayEvent[] {
   const byName = new Map(fighters.map((fighter) => [fighter.name.toLowerCase(), fighter]));
 
   return upcomingEventSeeds.map((event) => {
@@ -281,6 +281,18 @@ export async function getUfcDisplayEvents(): Promise<UfcDisplayEvent[]> {
       venue: event.venue,
     };
   });
+}
+
+export const getUfcDisplayEvents = cache(async function getUfcDisplayEvents(): Promise<UfcDisplayEvent[]> {
+  const fighters = await getUfcFighters();
+  return buildDisplayEvents(fighters);
+});
+
+export async function getUfcLandingData() {
+  const fighters = await getUfcFighters();
+  const events = buildDisplayEvents(fighters);
+
+  return { events, fighters };
 }
 
 export async function getUfcDisplayEvent(eventId: string) {

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { UfcLandingPage } from "@/components/UfcLandingPage";
 import { absoluteUrl } from "@/lib/site";
-import { getUfcFighters } from "@/lib/ufc-data";
+import { getFeaturedFighterPortraits } from "@/lib/thesportsdb";
+import { getUfcLandingData } from "@/lib/ufc-data";
 
 export const metadata: Metadata = {
   title: "GRDX1 UFC | AI Fight Predictions & Analytics",
@@ -20,7 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default async function UfcPage() {
-  const fighters = await getUfcFighters();
+  const { events, fighters } = await getUfcLandingData();
+  const fighterNames = events.slice(0, 3).flatMap((event) =>
+    event.fights.flatMap((fight) => [fight.red.name, fight.blue.name]),
+  );
+  const portraits = await getFeaturedFighterPortraits([...new Set(fighterNames)]);
 
-  return <UfcLandingPage fighters={fighters} />;
+  return <UfcLandingPage events={events} fighters={fighters} portraits={portraits} />;
 }
