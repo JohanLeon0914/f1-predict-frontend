@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AnalysisArticle } from "@/components/AnalysisPage";
-import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
+import { getLocalF1DataServer } from "@/lib/local-f1-data-server";
 import { getAnalysisEntry, getAnalysisPaths } from "@/lib/analysis-content";
 import { absoluteUrl, siteName } from "@/lib/site";
 
@@ -53,7 +53,7 @@ export default async function AnalysisDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const localData = await getCachedLocalF1Data();
+  const localData = await getLocalF1DataServer();
 
   return (
     <section className="page-shell analysis-page mx-auto max-w-7xl px-4 pb-12">

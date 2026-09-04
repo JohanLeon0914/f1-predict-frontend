@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HistoryClient } from "@/components/HistoryClient";
-import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
+import { getLocalF1DataServer } from "@/lib/local-f1-data-server";
 import { absoluteUrl, siteName } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HistoryPage() {
-  const localData = await getCachedLocalF1Data();
+  const localData = await getLocalF1DataServer();
 
   return <HistoryClient initialData={localData} />;
 }

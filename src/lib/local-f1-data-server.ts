@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { unstable_cache } from "next/cache";
 import type {
   Circuit,
   ConstructorOption,
@@ -11,8 +10,6 @@ import type {
   Race,
   RaceApiDriver,
 } from "@/lib/types";
-
-const LOCAL_F1_DATA_REVALIDATE_SECONDS = 86400;
 
 // The frontend lives beside the F1 project, not beside a top-level D:\F1 folder.
 // Keep the environment override for deployments where the dataset is mounted elsewhere.
@@ -531,13 +528,6 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
   return data;
 }
 
-export const getCachedLocalF1Data = unstable_cache(
-  buildLocalF1Data,
-  ["local-f1-data-v8"],
-  {
-    revalidate: LOCAL_F1_DATA_REVALIDATE_SECONDS,
-    tags: ["local-f1-data"],
-  },
-);
-
-export { LOCAL_F1_DATA_REVALIDATE_SECONDS };
+export async function getLocalF1DataServer() {
+  return buildLocalF1Data();
+}

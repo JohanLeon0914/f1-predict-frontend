@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AnalysisCard } from "@/components/AnalysisPage";
-import { getCachedLocalF1Data } from "@/lib/local-f1-data-server";
+import { getLocalF1DataServer } from "@/lib/local-f1-data-server";
 import { getAnalysisEntries } from "@/lib/analysis-content";
 import { absoluteUrl, siteName } from "@/lib/site";
 
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AnalysisIndexPage() {
-  const localData = await getCachedLocalF1Data();
+  const localData = await getLocalF1DataServer();
   const analysisEntries = getAnalysisEntries();
 
   return (

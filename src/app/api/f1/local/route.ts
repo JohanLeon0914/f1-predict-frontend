@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import {
-  getCachedLocalF1Data,
-  LOCAL_F1_DATA_REVALIDATE_SECONDS,
+  getLocalF1DataServer,
 } from "@/lib/local-f1-data-server";
 
 export async function GET() {
   try {
-    const data = await getCachedLocalF1Data();
+    const data = await getLocalF1DataServer();
 
     return NextResponse.json(data, {
       headers: {
-        "Cache-Control": `public, s-maxage=${LOCAL_F1_DATA_REVALIDATE_SECONDS}, stale-while-revalidate=3600`,
+        "Cache-Control": "no-store, max-age=0",
       },
     });
   } catch (error) {
