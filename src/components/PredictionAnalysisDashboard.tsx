@@ -12,6 +12,7 @@ import type {
   PredictionResponse,
   Race,
 } from "@/lib/types";
+import { getDriverImageUrl } from "@/lib/driver-image";
 
 type Props = {
   constructors: ConstructorOption[];
@@ -167,14 +168,15 @@ function driverPhoto(driverId: number, drivers: DriverOption[]) {
 
 function DriverAnalysisImage({ driverId, drivers }: { driverId: number; drivers: DriverOption[] }) {
   const photo = driverPhoto(driverId, drivers);
+  const imageUrl = getDriverImageUrl(photo);
   const [imageFailed, setImageFailed] = useState(false);
 
-  if (photo && !imageFailed) {
+  if (imageUrl && !imageFailed) {
     return (
       <Image
         className="analysis-headshot"
         alt={driverName(driverId, drivers)}
-        src={photo}
+        src={imageUrl}
         width={126}
         height={126}
         onError={() => setImageFailed(true)}

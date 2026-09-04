@@ -14,6 +14,7 @@ import {
   getMetrics,
   predictRace,
 } from "@/lib/f1-ranker-api";
+import { getDriverImageUrl } from "@/lib/driver-image";
 import { checkPredictionQuota, ensureGuestId, savePrediction } from "@/lib/supabase";
 import type {
   DriverOption,
@@ -147,15 +148,16 @@ function CircuitOutline({ active = false, race }: { active?: boolean; race: Race
 
 function DriverHelmet({ driver }: { driver?: DriverOption }) {
   const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = getDriverImageUrl(driver?.headshotUrl ?? null);
 
-  if (driver?.headshotUrl && !imageFailed) {
+  if (imageUrl && !imageFailed) {
     return (
       <Image
-        alt={`${driver.name} headshot`}
+        alt={`${driver?.name ?? "Driver"} headshot`}
         className="driver-headshot"
         height={72}
         onError={() => setImageFailed(true)}
-        src={driver.headshotUrl}
+        src={imageUrl}
         unoptimized
         width={72}
       />
