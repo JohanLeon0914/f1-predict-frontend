@@ -48,9 +48,10 @@ const steps: Array<{ id: Step; title: string; copy: string }> = [
 ];
 
 const adsenseSlots = {
-  racesTop: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP,
-  racesInline: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE,
-  dashboardRectangle: process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE,
+  racesTop: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP || "9642182102",
+  racesInline: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE || "8969947460",
+  dashboardRectangle:
+    process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE || "8969947460",
 };
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
