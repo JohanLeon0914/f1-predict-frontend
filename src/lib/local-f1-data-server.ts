@@ -507,7 +507,20 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
       .sort((a, b) => (a.grid ?? 99) - (b.grid ?? 99));
   }
 
-  const drivers: DriverOption[] = latestResults
+  const futureRaceIds = new Set(futureRaces.map((race) => race.raceId));
+  const currentQualifyingDrivers = qualifyingRows.filter((row) =>
+    futureRaceIds.has(Number(row.raceId)),
+  );
+  const driverRows = Array.from(
+    new Map(
+      [...latestResults, ...currentQualifyingDrivers].map((row) => [
+        Number(row.driverId),
+        row,
+      ]),
+    ).values(),
+  );
+
+  const drivers: DriverOption[] = driverRows
     .map((row) => ({
       driverId: Number(row.driverId),
       number: row.number ? String(row.number) : null,
