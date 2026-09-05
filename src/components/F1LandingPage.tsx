@@ -231,10 +231,10 @@ export function F1LandingPage({ initialData = null }: LandingPageProps) {
         <Link className="race-briefing-card reveal" href="/monza">
           <figure>
             <Image
-              alt="Aerial view of Autodromo Nazionale di Monza"
+              alt="Charles Leclerc driving a Ferrari F1 car at Monza"
               fill
               sizes="(max-width: 760px) 100vw, 45vw"
-              src="https://upload.wikimedia.org/wikipedia/commons/6/65/Monza_aerial_photo.jpg"
+              src="https://media.formula1.com/image/upload/t_16by9North/c_lfill,w_3392/q_auto/v1740000001/fom-website/2026/Italy/GettyImages-2293483680.webp"
             />
           </figure>
           <div>

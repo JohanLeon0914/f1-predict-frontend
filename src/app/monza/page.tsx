@@ -8,10 +8,10 @@ const monzaRaceId = 1181;
 const pageTitle = "2026 Italian Grand Prix at Monza: F1 Schedule, Circuit Guide and Practice Update";
 const pageDescription =
   "Complete 2026 Italian Grand Prix guide for Monza with the F1 schedule, circuit facts, Friday practice updates, strategy keys and a GRDX1 race prediction link.";
-const monzaAerialImage =
-  "https://upload.wikimedia.org/wikipedia/commons/6/65/Monza_aerial_photo.jpg";
+const monzaHeroImage =
+  "https://media.formula1.com/image/upload/t_16by9North/c_lfill,w_3392/q_auto/v1740000001/fom-website/2026/Italy/GettyImages-2293483680.webp";
 const monzaTrackImage =
-  "https://upload.wikimedia.org/wikipedia/commons/1/1b/Autodromo_di_Monza.JPG";
+  "https://media.formula1.com/image/upload/t_16by9Centre/c_fit,w_3200,h_1800/q_auto/v1740000001/trackside-images/2026/F1_Grand_Prix_of_Italy___Practice/2293527218.webp";
 
 const monzaRace = {
   raceId: monzaRaceId,
@@ -73,8 +73,8 @@ export const metadata: Metadata = {
     description: pageDescription,
     images: [
       {
-        alt: "Aerial view of Autodromo Nazionale di Monza",
-        url: monzaAerialImage,
+        alt: "Charles Leclerc driving a Ferrari F1 car at Monza",
+        url: monzaHeroImage,
       },
     ],
     title: pageTitle,
@@ -95,7 +95,7 @@ export default function MonzaPage() {
         datePublished: publishedAt,
         description: pageDescription,
         headline: pageTitle,
-        image: [monzaAerialImage, monzaTrackImage],
+        image: [monzaHeroImage, monzaTrackImage],
         inLanguage: "en",
         mainEntityOfPage: absoluteUrl("/monza"),
         publisher: { "@type": "Organization", name: siteName },
@@ -104,7 +104,7 @@ export default function MonzaPage() {
         "@type": "SportsEvent",
         endDate: "2026-09-06T15:00:00+02:00",
         eventStatus: "https://schema.org/EventScheduled",
-        image: monzaAerialImage,
+        image: monzaHeroImage,
         location: {
           "@type": "Place",
           address: {
@@ -130,12 +130,12 @@ export default function MonzaPage() {
 
       <section className="monza-hero">
         <Image
-          alt="Aerial view of Autodromo Nazionale di Monza"
+          alt="Charles Leclerc driving a Ferrari F1 car at Monza"
           className="monza-hero-image"
           fill
           priority
           sizes="100vw"
-          src={monzaAerialImage}
+          src={monzaHeroImage}
         />
         <div className="monza-hero-overlay" />
         <div className="monza-hero-content">
@@ -220,14 +220,14 @@ export default function MonzaPage() {
       <section className="monza-photo-row">
         <figure>
           <Image
-            alt="Main straight and grandstand at Monza"
+            alt="Lewis Hamilton driving a Ferrari F1 car at Monza"
             height={295}
             sizes="(max-width: 760px) 100vw, 42vw"
             src={monzaTrackImage}
             width={444}
           />
           <figcaption>
-            Public image: Wikimedia Commons, Autodromo di Monza.
+            Formula 1 image from Italian Grand Prix practice at Monza.
           </figcaption>
         </figure>
         <div>
@@ -302,8 +302,8 @@ export default function MonzaPage() {
         <a href="https://www.formula1.com/en/latest/article/need-to-know-the-most-important-facts-stats-and-trivia-ahead-of-the-2026-italian-grand-prix.3R2slU8oSHdeOc5lidJDGy" rel="noreferrer" target="_blank">
           Formula 1: Need to Know Italian Grand Prix
         </a>
-        <a href="https://commons.wikimedia.org/wiki/File:Monza_aerial_photo.jpg" rel="noreferrer" target="_blank">
-          Wikimedia Commons: Monza aerial photo
+        <a href="https://www.formula1.com/en/latest/article/fp1-leclerc-leads-hamilton-and-russell-during-first-practice-at-the-italian-grand-prix.7DUTqVtZlb4zvqNfBsyl1t.7DUTqVtZlb4zvqNfBsyl1t" rel="noreferrer" target="_blank">
+          Formula 1: FP1 report and Monza track images
         </a>
       </section>
     </article>
