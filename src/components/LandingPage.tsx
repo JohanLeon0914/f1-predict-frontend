@@ -107,15 +107,9 @@ export function LandingPage() {
           <small>FORMULA 1  •  UFC</small>
         </div>
 
-        <div className="platform-hero-metric metric-f1" aria-hidden="true">
-          <span>SPEED</span>
-          <span>DATA</span>
-          <span>PRECISION</span>
-        </div>
-        <div className="platform-hero-metric metric-ufc" aria-hidden="true">
-          <span>SKILL</span>
-          <span>STRATEGY</span>
-          <span>DISCIPLINE</span>
+        <div className="scroll-cue" aria-hidden="true">
+          <span />
+          <small>SCROLL</small>
         </div>
       </section>
 
