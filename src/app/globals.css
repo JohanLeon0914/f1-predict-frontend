@@ -2769,25 +2769,15 @@ pre {
 }
 
 .ad-container {
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.015)),
-    rgb(8 9 10 / 0.74);
-  border: 1px solid rgb(255 255 255 / 0.08);
-  border-radius: 8px;
-  display: grid;
-  gap: 0.45rem;
+  display: block;
   margin: 1rem 0;
   min-width: 0;
   overflow: hidden;
-  padding: 0.6rem;
 }
 
-.ad-container > span {
-  color: rgb(255 255 255 / 0.32);
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.ad-container:has(.adsbygoogle[data-ad-status="unfilled"]),
+.ad-container:has(.adsbygoogle[data-ad-status="unfill-optimized"]) {
+  display: none;
 }
 
 .ad-wide {
@@ -2795,9 +2785,6 @@ pre {
 }
 
 .ad-in-panel {
-  border-left: 0;
-  border-radius: 0;
-  border-right: 0;
   margin: 0;
 }
 

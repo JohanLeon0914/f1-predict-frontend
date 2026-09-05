@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabaseAuth.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
+      setPremiumLoading(Boolean(session?.user));
       setLoading(false);
     });
 

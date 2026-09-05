@@ -13,14 +13,12 @@ declare global {
 type Props = {
   className?: string;
   format?: "auto" | "horizontal" | "rectangle" | "vertical";
-  label?: string;
   slot?: string;
 };
 
 export function GoogleAdSlot({
   className = "",
   format = "auto",
-  label = "Advertisement",
   slot,
 }: Props) {
   const { isPremium, loading, premiumLoading } = useAuth();
@@ -36,11 +34,10 @@ export function GoogleAdSlot({
     }
   }, [isPremium, loading, premiumLoading, slot]);
 
-  if (!adsenseClient || !slot || isPremium || loading || premiumLoading) return null;
+  if (!adsenseClient || !slot || isPremium) return null;
 
   return (
-    <aside className={`ad-container ${className}`} aria-label={label}>
-      <span>{label}</span>
+    <aside className={`ad-container ${className}`} aria-label="Anuncio">
       <ins
         className="adsbygoogle"
         data-ad-client={adsenseClient}
