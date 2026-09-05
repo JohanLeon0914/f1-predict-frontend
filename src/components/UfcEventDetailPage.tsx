@@ -97,6 +97,11 @@ function MainEvent({
           <CountryLine country={fight.blue.name === "Salahdine Parnasse" ? "France" : event.country} />
           <b>{fight.blueRecord}</b>
         </div>
+        <div className="ufc-mobile-fighter-labels" aria-hidden="true">
+          <strong>{fight.red.name}</strong>
+          <span>FIGHTER STATS</span>
+          <strong>{fight.blue.name}</strong>
+        </div>
         <div className="ufc-stat-compare" aria-label="Fighter comparison">
           {redStats.map((stat) => (
             <div key={stat.label}>
