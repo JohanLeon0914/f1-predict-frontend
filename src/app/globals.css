@@ -1867,7 +1867,7 @@ pre {
   border-radius: 8px;
   color: #fff;
   display: grid;
-  grid-template-columns: 7rem 7rem minmax(0, 1fr) 7rem auto 2.5rem;
+  grid-template-columns: 7rem 7rem minmax(0, 1fr) 7rem auto;
   min-height: 7.2rem;
   overflow: hidden;
   position: relative;
@@ -1973,11 +1973,7 @@ pre {
 }
 
 .ufc-event-row > i {
-  align-self: center;
-  color: #fff;
-  font-size: 2.5rem;
-  font-style: normal;
-  opacity: 0.84;
+  display: none;
 }
 
 .ufc-event-detail-hero {
@@ -2360,6 +2356,11 @@ pre {
   color: rgb(255 255 255 / 0.74);
   display: inline-flex;
   font-size: 0.8rem;
+  justify-self: start;
+}
+
+.ufc-main-fighter.right .ufc-fighter-country {
+  justify-self: end;
 }
 
 .ufc-stat-compare {
@@ -2519,8 +2520,7 @@ pre {
 }
 
 .ufc-section-title a span {
-  display: inline-block;
-  transition: transform 180ms ease;
+  display: none;
 }
 
 .ufc-section-title a:hover span {
@@ -5752,7 +5752,7 @@ pre {
   }
 
   .ufc-event-row {
-    grid-template-columns: 5.6rem 5rem minmax(0, 1fr) 5rem 2.4rem;
+    grid-template-columns: 5.6rem 5rem minmax(0, 1fr) 5rem;
   }
 
   .ufc-event-status {
@@ -5770,6 +5770,14 @@ pre {
 
   .ufc-main-fighter.right {
     text-align: left;
+  }
+
+  .ufc-main-fighter.right .ufc-fighter-country {
+    justify-self: center;
+  }
+
+  .ufc-main-fighter .ufc-fighter-country {
+    justify-self: center;
   }
 
   .ufc-prediction-winner {
@@ -5967,7 +5975,7 @@ pre {
   }
 
   .ufc-event-row {
-    grid-template-columns: 4.2rem 3rem minmax(0, 1fr) 3rem 2rem;
+    grid-template-columns: 4.2rem 3rem minmax(0, 1fr) 3rem;
     min-height: 6.2rem;
   }
 
