@@ -10,6 +10,7 @@ import type {
   Race,
   RaceApiDriver,
 } from "@/lib/types";
+import { getOpenF1Headers } from "@/lib/openf1-auth";
 
 // The frontend lives beside the F1 project, not beside a top-level D:\F1 folder.
 // Keep the environment override for deployments where the dataset is mounted elsewhere.
@@ -23,6 +24,36 @@ const csvRootCandidates = [
 const csvRoot =
   csvRootCandidates.find((root) => existsSync(root)) ??
   path.resolve(process.cwd(), "F1", "CSVs");
+
+const monza2026RaceId = 1181;
+
+// Temporary race-weekend override for the 2026 Italian GP. Public CSV feeds do
+// not publish practice sessions, so this keeps the Monza predictor screen close
+// to the latest official F1 practice data until qualifying/race CSV rows exist.
+const monza2026PracticeParticipants: ParticipantRequest[] = [
+  { driverId: 847, constructorId: 131, grid: 1, qualifying_position: 1, q1: "1:23.312", q2: "1:22.559", q3: null },
+  { driverId: 844, constructorId: 6, grid: 2, qualifying_position: 2, q1: "1:23.008", q2: "1:22.679", q3: null },
+  { driverId: 863, constructorId: 131, grid: 3, qualifying_position: 3, q1: "1:23.644", q2: "1:22.700", q3: null },
+  { driverId: 846, constructorId: 1, grid: 4, qualifying_position: 4, q1: "1:23.719", q2: "1:22.943", q3: null },
+  { driverId: 1, constructorId: 6, grid: 5, qualifying_position: 5, q1: "1:23.181", q2: "1:23.016", q3: null },
+  { driverId: 857, constructorId: 1, grid: 6, qualifying_position: 6, q1: "1:24.184", q2: "1:23.028", q3: null },
+  { driverId: 866, constructorId: 215, grid: 7, qualifying_position: 7, q1: "1:23.802", q2: "1:23.349", q3: null },
+  { driverId: 860, constructorId: 210, grid: 8, qualifying_position: 8, q1: "1:24.646", q2: "1:23.370", q3: null },
+  { driverId: 830, constructorId: 9, grid: 9, qualifying_position: 9, q1: null, q2: "1:23.377", q3: null },
+  { driverId: 852, constructorId: 215, grid: 10, qualifying_position: 10, q1: "1:24.571", q2: "1:23.455", q3: null },
+  { driverId: 861, constructorId: 214, grid: 11, qualifying_position: 11, q1: "1:24.028", q2: "1:23.619", q3: null },
+  { driverId: 859, constructorId: 9, grid: 12, qualifying_position: 12, q1: "1:23.433", q2: "1:23.660", q3: null },
+  { driverId: 807, constructorId: 217, grid: 13, qualifying_position: 13, q1: "1:24.626", q2: "1:23.732", q3: null },
+  { driverId: 842, constructorId: 214, grid: 14, qualifying_position: 14, q1: null, q2: "1:23.773", q3: null },
+  { driverId: 864, constructorId: 217, grid: 15, qualifying_position: 15, q1: "1:24.006", q2: "1:23.776", q3: null },
+  { driverId: 848, constructorId: 3, grid: 16, qualifying_position: 16, q1: null, q2: "1:23.853", q3: null },
+  { driverId: 832, constructorId: 3, grid: 17, qualifying_position: 17, q1: "1:24.827", q2: "1:23.900", q3: null },
+  { driverId: 839, constructorId: 210, grid: 18, qualifying_position: 18, q1: "1:25.852", q2: "1:24.407", q3: null },
+  { driverId: 4, constructorId: 117, grid: 19, qualifying_position: 19, q1: "1:26.072", q2: "1:25.027", q3: null },
+  { driverId: 815, constructorId: 216, grid: 20, qualifying_position: 20, q1: null, q2: "1:25.082", q3: null },
+  { driverId: 822, constructorId: 216, grid: 21, qualifying_position: 21, q1: "1:25.984", q2: "1:25.149", q3: null },
+  { driverId: 840, constructorId: 117, grid: 22, qualifying_position: 22, q1: "1:26.066", q2: "1:25.253", q3: null },
+];
 
 const knownModernConstructorsById = new Map<number, string>([
   [1, "McLaren"],
@@ -76,6 +107,31 @@ type JolpicaDriverInfo = {
 
 const knownModernDriversByNumber = new Map<number, JolpicaDriverInfo>([
   [6, { fullName: "Isack Hadjar", teamName: "Red Bull" }],
+]);
+
+const knownModernHeadshotsByNumber = new Map<number, string>([
+  [1, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/1col/image.png"],
+  [3, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/1col/image.png"],
+  [5, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GABBOR01_Gabriel_Bortoleto/gabbor01.png.transform/1col/image.png"],
+  [10, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIEGAS01_Pierre_Gasly/piegas01.png.transform/1col/image.png"],
+  [11, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/1col/image.png"],
+  [12, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/ANDANT01_Kimi_Antonelli/andant01.png.transform/1col/image.png"],
+  [14, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/1col/image.png"],
+  [16, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/1col/image.png"],
+  [18, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANSTR01_Lance_Stroll/lanstr01.png.transform/1col/image.png"],
+  [22, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/1col/image.png"],
+  [23, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/1col/image.png"],
+  [27, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/1col/image.png"],
+  [30, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/1col/image.png"],
+  [31, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCO01_Esteban_Ocon/estoco01.png.transform/1col/image.png"],
+  [41, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ARVLIN01_Arvid_Lindblad/arvlin01.png.transform/1col/image.png"],
+  [43, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/1col/image.png"],
+  [44, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/1col/image.png"],
+  [55, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/1col/image.png"],
+  [63, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/1col/image.png"],
+  [77, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/V/VALBOT01_Valtteri_Bottas/valbot01.png.transform/1col/image.png"],
+  [81, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/1col/image.png"],
+  [87, "https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OLIBEA01_Oliver_Bearman/olibea01.png.transform/1col/image.png"],
 ]);
 
 const knownModernDriversById = new Map<
@@ -166,7 +222,11 @@ async function readOpenF1Drivers() {
   try {
     const response = await fetch(
       "https://api.openf1.org/v1/drivers?session_key=latest",
-      { cache: "no-store", signal: AbortSignal.timeout(2500) },
+      {
+        cache: "no-store",
+        headers: getOpenF1Headers(),
+        signal: AbortSignal.timeout(2500),
+      },
     );
     if (!response.ok) return new Map<number, OpenF1Driver>();
     const drivers = (await response.json()) as OpenF1Driver[];
@@ -184,6 +244,7 @@ async function readOpenF1RaceDrivers(races: Race[]) {
       await Promise.all(years.map(async (year) => {
         const response = await fetch(`https://api.openf1.org/v1/sessions?year=${year}`, {
           cache: "no-store",
+          headers: getOpenF1Headers(),
           signal: AbortSignal.timeout(2500),
         });
         return response.ok ? ((await response.json()) as OpenF1Session[]) : [];
@@ -197,7 +258,11 @@ async function readOpenF1RaceDrivers(races: Race[]) {
       if (!session) continue;
       const response = await fetch(
         `https://api.openf1.org/v1/drivers?session_key=${session.session_key}`,
-        { cache: "no-store", signal: AbortSignal.timeout(2500) },
+        {
+          cache: "no-store",
+          headers: getOpenF1Headers(),
+          signal: AbortSignal.timeout(2500),
+        },
       );
       if (!response.ok) continue;
       const drivers = (await response.json()) as OpenF1Driver[];
@@ -256,7 +321,7 @@ async function readOpenF1CircuitImages(races: Race[]) {
     try {
       const response = await fetch(`https://api.openf1.org/v1/meetings?year=${year}`, {
         cache: "no-store",
-        headers: { "User-Agent": "F1MLPredicts/0.1.0 NextJS" },
+        headers: getOpenF1Headers(),
         signal: AbortSignal.timeout(5000),
       });
       return response.ok ? ((await response.json()) as OpenF1Meeting[]) : [];
@@ -454,6 +519,13 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
       .sort((a, b) => (a.grid ?? 99) - (b.grid ?? 99));
   }
 
+  const hasMonzaResultRows = resultRows.some(
+    (row) => Number(row.raceId) === monza2026RaceId,
+  );
+  if (!hasMonzaResultRows) {
+    participantsByRace[String(monza2026RaceId)] = monza2026PracticeParticipants;
+  }
+
   const drivers: DriverOption[] = latestResults
     .map((row) => ({
       driverId: Number(row.driverId),
@@ -485,7 +557,10 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
         name,
         teamName,
         teamColor: driver.openF1?.team_colour ?? null,
-        headshotUrl: driver.openF1?.headshot_url ?? null,
+        headshotUrl:
+          driver.openF1?.headshot_url ??
+          knownModernHeadshotsByNumber.get(Number(number)) ??
+          null,
         label: `${name}${number ? ` #${number}` : ""} - ${teamName}`,
       };
     })

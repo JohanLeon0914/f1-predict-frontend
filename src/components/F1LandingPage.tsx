@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CircuitSilhouette } from "@/components/CircuitSilhouette";
-import { getLocalF1Data } from "@/lib/f1-ranker-api";
+import { getCircuitImagesForRaces, getLocalF1Data } from "@/lib/f1-ranker-api";
 import type { LocalF1Data, Race } from "@/lib/types";
 
 const features = [
@@ -77,6 +77,46 @@ export function F1LandingPage({ initialData = null }: LandingPageProps) {
       .catch(() => setRaces([]))
       .finally(() => setRacesLoading(false));
   }, [initialData]);
+
+  useEffect(() => {
+    if (!races.some((race) => !race.circuitImageUrl)) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const loadCircuitImages = () => {
+      attempts += 1;
+      getCircuitImagesForRaces(races)
+        .then((imagesByRaceId) => {
+          if (cancelled) return;
+          if (imagesByRaceId.size) {
+            setRaces((current) =>
+              current.map((race) => ({
+                ...race,
+                circuitImageUrl: race.circuitImageUrl ?? imagesByRaceId.get(race.raceId) ?? null,
+                circuitImageSource:
+                  race.circuitImageSource ?? (imagesByRaceId.has(race.raceId) ? "openf1" : null),
+              })),
+            );
+          } else if (attempts < 6) {
+            timeoutId = setTimeout(loadCircuitImages, 5000);
+          }
+        })
+        .catch(() => {
+          if (!cancelled && attempts < 6) {
+            timeoutId = setTimeout(loadCircuitImages, 5000);
+          }
+        });
+    };
+
+    loadCircuitImages();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [races]);
 
   useEffect(() => {
     let frame = 0;
@@ -178,8 +218,35 @@ export function F1LandingPage({ initialData = null }: LandingPageProps) {
                     <span>{countryCode(race.circuit?.country)}</span>
                   </footer>
                 </Link>
-              ))}
+          ))}
         </div>
+      </section>
+
+      <section className="landing-section race-briefing-section">
+        <div className="section-heading reveal">
+          <p className="tech-label">RACE WEEKEND BRIEFING</p>
+          <h2>Monza is live this weekend.</h2>
+          <Link href="/monza">Read the Monza guide →</Link>
+        </div>
+        <Link className="race-briefing-card reveal" href="/monza">
+          <figure>
+            <Image
+              alt="Aerial view of Autodromo Nazionale di Monza"
+              fill
+              sizes="(max-width: 760px) 100vw, 45vw"
+              src="https://upload.wikimedia.org/wikipedia/commons/6/65/Monza_aerial_photo.jpg"
+            />
+          </figure>
+          <div>
+            <span>ITALIAN GRAND PRIX 2026</span>
+            <h3>Schedule, circuit facts and Monza prediction keys</h3>
+            <p>
+              A quick weekend guide to the Autodromo Nazionale di Monza, with
+              a direct link to the race result predictor.
+            </p>
+            <b>Open guide →</b>
+          </div>
+        </Link>
       </section>
 
       <section className="landing-section prediction-experience">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const ALLOWED_IMAGE_HOST = "media.formula1.com";
+const ALLOWED_IMAGE_HOSTS = new Set(["media.formula1.com", "www.formula1.com"]);
 
 export async function GET(request: NextRequest) {
   const source = request.nextUrl.searchParams.get("url");
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Invalid image URL", { status: 400 });
   }
 
-  if (imageUrl.protocol !== "https:" || imageUrl.hostname !== ALLOWED_IMAGE_HOST) {
+  if (imageUrl.protocol !== "https:" || !ALLOWED_IMAGE_HOSTS.has(imageUrl.hostname)) {
     return new NextResponse("Image host is not allowed", { status: 403 });
   }
 

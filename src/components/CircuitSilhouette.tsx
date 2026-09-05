@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { getCircuitAssetPath } from "@/lib/circuit-outlines";
 import { getDriverImageUrl } from "@/lib/driver-image";
 import type { Race } from "@/lib/types";
 import { useState } from "react";
@@ -22,7 +23,8 @@ export function CircuitSilhouette({
   const sourceImageUrl = race.circuitImageUrl && race.circuitImageUrl !== failedImageUrl
     ? race.circuitImageUrl
     : null;
-  const imageUrl = getDriverImageUrl(sourceImageUrl);
+  const imageUrl =
+    getDriverImageUrl(sourceImageUrl) ?? getCircuitAssetPath(race.circuit?.circuitRef);
 
   return (
     imageUrl ? (

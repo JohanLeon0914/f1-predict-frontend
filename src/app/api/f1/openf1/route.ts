@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getOpenF1Headers } from "@/lib/openf1-auth";
 
 const OPENF1_BASE_URL = "https://api.openf1.org/v1";
 
@@ -10,6 +11,8 @@ export async function GET(request: NextRequest) {
   try {
     const response = await fetch(`${OPENF1_BASE_URL}/${resource}?${query}`, {
       cache: "no-store",
+      headers: getOpenF1Headers(),
+      signal: AbortSignal.timeout(10000),
     });
     return NextResponse.json(await response.json(), { status: response.status });
   } catch (error) {

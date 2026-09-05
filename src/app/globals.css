@@ -669,6 +669,74 @@ pre {
   padding: 5rem 1rem;
 }
 
+.race-briefing-section {
+  padding-top: 1rem;
+}
+
+.race-briefing-card {
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: #fff;
+  display: grid;
+  gap: 1.35rem;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  min-height: 21rem;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.race-briefing-card:hover {
+  border-color: rgb(239 51 64 / 0.45);
+  transform: translateY(-2px);
+}
+
+.race-briefing-card figure {
+  margin: 0;
+  min-height: 21rem;
+  position: relative;
+}
+
+.race-briefing-card img {
+  height: 100%;
+  min-height: 21rem;
+  object-fit: cover;
+  width: 100%;
+}
+
+.race-briefing-card div {
+  align-content: center;
+  display: grid;
+  gap: 0.9rem;
+  padding: clamp(1.4rem, 3vw, 2.4rem);
+}
+
+.race-briefing-card span,
+.race-briefing-card b {
+  color: var(--red);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.race-briefing-card h3 {
+  font-size: clamp(1.8rem, 3.3vw, 3.6rem);
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.98;
+  max-width: 16ch;
+  text-transform: uppercase;
+}
+
+.race-briefing-card p {
+  color: rgb(255 255 255 / 0.74);
+  line-height: 1.6;
+  max-width: 56ch;
+}
+
 .platform-landing {
   background:
     radial-gradient(circle at 50% 5%, rgb(255 255 255 / 0.045), transparent 28rem),
@@ -4942,6 +5010,329 @@ pre {
   border-color: rgb(239 51 64 / 0.28);
 }
 
+.monza-page {
+  background: #050607;
+  color: #fff;
+  padding-bottom: 4rem;
+}
+
+.monza-hero {
+  min-height: min(86svh, 48rem);
+  overflow: hidden;
+  position: relative;
+}
+
+.monza-hero-image {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.monza-hero-overlay {
+  background:
+    linear-gradient(90deg, rgb(5 6 7 / 0.92) 0%, rgb(5 6 7 / 0.66) 46%, rgb(5 6 7 / 0.18) 100%),
+    linear-gradient(180deg, rgb(5 6 7 / 0.22) 0%, #050607 98%);
+  inset: 0;
+  position: absolute;
+}
+
+.monza-hero-content {
+  display: grid;
+  gap: 1rem;
+  left: max(1rem, calc((100vw - 80rem) / 2 + 1rem));
+  max-width: min(46rem, calc(100vw - 2rem));
+  position: absolute;
+  top: clamp(7rem, 18vh, 10rem);
+  z-index: 1;
+}
+
+.monza-hero h1 {
+  font-size: clamp(2.65rem, 6.4vw, 6.5rem);
+  font-style: italic;
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.monza-hero p,
+.monza-intro p,
+.monza-photo-row p,
+.monza-practice-panel p,
+.monza-content-grid li,
+.monza-cta-panel p,
+.monza-side-panel p {
+  color: rgb(255 255 255 / 0.76);
+  line-height: 1.65;
+}
+
+.monza-hero-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.monza-hero-actions > a:not(.red-cta) {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 900;
+  padding: 0.85rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.monza-section,
+.monza-photo-row,
+.monza-sources {
+  margin: 0 auto;
+  max-width: 80rem;
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
+}
+
+.monza-intro {
+  align-items: start;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
+}
+
+.monza-intro h2,
+.monza-main h2,
+.monza-photo-row h2,
+.monza-practice-panel h2,
+.monza-content-grid h2,
+.monza-cta-panel h2 {
+  font-size: clamp(1.8rem, 3.2vw, 3.4rem);
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.98;
+  margin-top: 0.45rem;
+  text-transform: uppercase;
+}
+
+.monza-grid {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.35fr);
+}
+
+.monza-main,
+.monza-side-panel,
+.monza-practice-panel,
+.monza-cta-panel {
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.052), rgb(255 255 255 / 0.016));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1.15rem, 2.4vw, 1.8rem);
+}
+
+.monza-schedule {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+.monza-schedule div {
+  align-items: center;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: 8rem minmax(0, 1fr) 7.5rem 7rem;
+  padding: 0.85rem 0;
+}
+
+.monza-schedule span,
+.monza-schedule small,
+.monza-stat-grid span,
+.monza-sources h2 {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.monza-schedule strong {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.monza-schedule b,
+.monza-stat-grid b {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.monza-circuit {
+  min-height: 11rem;
+  width: 100%;
+}
+
+.monza-circuit path {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.9);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+
+.monza-side-panel h2 {
+  font-size: 1.35rem;
+  font-style: italic;
+  font-weight: 950;
+  margin: 1rem 0 0.65rem;
+  text-transform: uppercase;
+}
+
+.monza-practice-panel {
+  align-items: start;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 0.8fr) minmax(18rem, 0.55fr);
+}
+
+.monza-practice-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.monza-practice-grid div {
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.45rem;
+  min-height: 7rem;
+  padding: 1rem;
+}
+
+.monza-practice-grid span,
+.monza-practice-grid small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.monza-practice-grid b {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.monza-photo-row {
+  align-items: center;
+  display: grid;
+  gap: clamp(1.3rem, 3vw, 2rem);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+}
+
+.monza-photo-row figure {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.monza-photo-row img {
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.monza-photo-row figcaption {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.monza-photo-row div,
+.monza-content-grid > div {
+  display: grid;
+  gap: 1rem;
+}
+
+.monza-stat-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.monza-stat-grid div {
+  background: rgb(255 255 255 / 0.035);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.5rem;
+  min-height: 7rem;
+  padding: 1rem;
+}
+
+.monza-content-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.38fr);
+}
+
+.monza-content-grid ul {
+  display: grid;
+  gap: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.monza-content-grid li {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+}
+
+.monza-content-grid strong {
+  color: #fff;
+}
+
+.monza-cta-panel {
+  align-content: center;
+  gap: 1rem;
+}
+
+.monza-cta-panel h2 {
+  font-size: clamp(1.7rem, 2.4vw, 2.55rem);
+  line-height: 1.02;
+}
+
+.monza-cta-panel .red-cta {
+  justify-content: center;
+}
+
+.monza-sources {
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.2rem;
+}
+
+.monza-sources h2 {
+  flex-basis: 100%;
+}
+
+.monza-sources a {
+  color: rgb(255 255 255 / 0.75);
+  font-size: 0.9rem;
+}
+
 .legal-page {
   padding-top: 6.5rem;
 }
@@ -7047,6 +7438,50 @@ img.wizard-track.active {
 }
 
 @media (max-width: 760px) {
+  .race-briefing-card,
+  .monza-intro,
+  .monza-grid,
+  .monza-photo-row,
+  .monza-practice-panel,
+  .monza-content-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .race-briefing-card,
+  .race-briefing-card figure {
+    min-height: auto;
+  }
+
+  .race-briefing-card figure {
+    aspect-ratio: 16 / 10;
+  }
+
+  .race-briefing-card img {
+    min-height: 0;
+  }
+
+  .monza-hero {
+    min-height: 44rem;
+  }
+
+  .monza-hero-content {
+    top: 7rem;
+  }
+
+  .monza-schedule div {
+    align-items: start;
+    gap: 0.35rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .monza-stat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .monza-practice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .analysis-dashboard {
     box-sizing: border-box;
     gap: 0.75rem;

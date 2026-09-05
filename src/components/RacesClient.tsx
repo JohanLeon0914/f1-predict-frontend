@@ -9,6 +9,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { GoogleAdSlot } from "@/components/GoogleAdSlot";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
+  getCircuitImagesForRaces,
   getHealth,
   getLocalF1Data,
   getMetrics,
@@ -53,6 +54,8 @@ const adsenseSlots = {
   dashboardRectangle:
     process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE || "8969947460",
 };
+
+const monza2026RaceId = 1181;
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -177,6 +180,7 @@ type RacesClientProps = {
 };
 
 export function RacesClient({ initialData = null }: RacesClientProps) {
+  const [mounted, setMounted] = useState(false);
   const {
     hasUnlimitedF1Access,
     isPremium,
@@ -203,6 +207,11 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     ensureGuestId();
     const applyLocalData = (localData: LocalF1Data) => {
       const requestedRace = Number(requestedRaceId);
@@ -236,7 +245,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
         if (metricsResult.status === "fulfilled") setMetrics(metricsResult.value);
       },
     );
-  }, [initialData, requestedRaceId]);
+  }, [initialData, mounted, requestedRaceId]);
 
   const futureRaces = useMemo(
     () => data?.races.filter((race) => race.status === "future") ?? [],
@@ -247,6 +256,69 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
     () => futureRaces.find((race) => race.raceId === selectedRaceId) ?? null,
     [futureRaces, selectedRaceId],
   );
+
+  useEffect(() => {
+    const races = data?.races ?? [];
+    if (!races.some((race) => race.status === "future" && !race.circuitImageUrl)) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const futureRacesToUpdate = races.filter((race) => race.status === "future");
+
+    const loadCircuitImages = () => {
+      attempts += 1;
+      getCircuitImagesForRaces(futureRacesToUpdate)
+        .then((imagesByRaceId) => {
+          if (cancelled) return;
+          if (imagesByRaceId.size) {
+            setData((current) => {
+              if (!current) return current;
+              return {
+                ...current,
+                races: current.races.map((race) => ({
+                  ...race,
+                  circuitImageUrl: race.circuitImageUrl ?? imagesByRaceId.get(race.raceId) ?? null,
+                  circuitImageSource:
+                    race.circuitImageSource ?? (imagesByRaceId.has(race.raceId) ? "openf1" : null),
+                })),
+              };
+            });
+          } else if (attempts < 6) {
+            timeoutId = setTimeout(loadCircuitImages, 5000);
+          }
+        })
+        .catch(() => {
+          if (!cancelled && attempts < 6) {
+            timeoutId = setTimeout(loadCircuitImages, 5000);
+          }
+        });
+    };
+
+    loadCircuitImages();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [data]);
+
+  const timingLabels =
+    selectedRaceId === monza2026RaceId
+      ? {
+          grid: "FP2 pos",
+          qualifying: "Practice",
+          q1: "FP1",
+          q2: "FP2",
+          q3: "FP3",
+        }
+      : {
+          grid: "Grid",
+          qualifying: "Qualy",
+          q1: "Q1",
+          q2: "Q2",
+          q3: "Q3",
+        };
 
   function getDriver(driverId: number) {
     return data?.drivers.find((driver) => driver.driverId === driverId);
@@ -411,6 +483,10 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
   const testMae = getMetric(metrics, "test", "mae_position");
   const top3 = getMetric(metrics, "test", "top3_accuracy");
   const top10 = getMetric(metrics, "test", "top10_accuracy");
+
+  if (!mounted) {
+    return <div className="page-shell races-loading" aria-busy="true" />;
+  }
 
   return (
     <div className="races-wizard page-shell mx-auto max-w-[118rem] px-4 pb-10">
@@ -613,7 +689,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                       </select>
                     </label>
                     <label>
-                      Grid
+                      {timingLabels.grid}
                       <input
                         inputMode="numeric"
                         value={participant.grid ?? ""}
@@ -626,7 +702,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                       />
                     </label>
                     <label>
-                      Qualy
+                      {timingLabels.qualifying}
                       <input
                         inputMode="numeric"
                         value={participant.qualifying_position ?? ""}
@@ -639,7 +715,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                       />
                     </label>
                     <label>
-                      Q1
+                      {timingLabels.q1}
                       <input
                         value={participant.q1 ?? ""}
                         onChange={(event) =>
@@ -651,7 +727,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                       />
                     </label>
                     <label>
-                      Q2
+                      {timingLabels.q2}
                       <input
                         value={participant.q2 ?? ""}
                         onChange={(event) =>
@@ -663,7 +739,7 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                       />
                     </label>
                     <label>
-                      Q3
+                      {timingLabels.q3}
                       <input
                         value={participant.q3 ?? ""}
                         onChange={(event) =>

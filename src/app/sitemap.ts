@@ -19,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
+      url: absoluteUrl("/monza"),
+      lastModified: new Date("2026-09-05"),
+    },
+    {
       url: absoluteUrl("/support"),
       lastModified: new Date(),
     },
