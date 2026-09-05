@@ -25,36 +25,6 @@ const csvRoot =
   csvRootCandidates.find((root) => existsSync(root)) ??
   path.resolve(process.cwd(), "F1", "CSVs");
 
-const monza2026RaceId = 1181;
-
-// Temporary race-weekend override for the 2026 Italian GP. Public CSV feeds do
-// not publish practice sessions, so this keeps the Monza predictor screen close
-// to the latest official F1 practice data until qualifying/race CSV rows exist.
-const monza2026PracticeParticipants: ParticipantRequest[] = [
-  { driverId: 847, constructorId: 131, grid: 1, qualifying_position: 1, q1: "1:23.312", q2: "1:22.559", q3: null },
-  { driverId: 844, constructorId: 6, grid: 2, qualifying_position: 2, q1: "1:23.008", q2: "1:22.679", q3: null },
-  { driverId: 863, constructorId: 131, grid: 3, qualifying_position: 3, q1: "1:23.644", q2: "1:22.700", q3: null },
-  { driverId: 846, constructorId: 1, grid: 4, qualifying_position: 4, q1: "1:23.719", q2: "1:22.943", q3: null },
-  { driverId: 1, constructorId: 6, grid: 5, qualifying_position: 5, q1: "1:23.181", q2: "1:23.016", q3: null },
-  { driverId: 857, constructorId: 1, grid: 6, qualifying_position: 6, q1: "1:24.184", q2: "1:23.028", q3: null },
-  { driverId: 866, constructorId: 215, grid: 7, qualifying_position: 7, q1: "1:23.802", q2: "1:23.349", q3: null },
-  { driverId: 860, constructorId: 210, grid: 8, qualifying_position: 8, q1: "1:24.646", q2: "1:23.370", q3: null },
-  { driverId: 830, constructorId: 9, grid: 9, qualifying_position: 9, q1: null, q2: "1:23.377", q3: null },
-  { driverId: 852, constructorId: 215, grid: 10, qualifying_position: 10, q1: "1:24.571", q2: "1:23.455", q3: null },
-  { driverId: 861, constructorId: 214, grid: 11, qualifying_position: 11, q1: "1:24.028", q2: "1:23.619", q3: null },
-  { driverId: 859, constructorId: 9, grid: 12, qualifying_position: 12, q1: "1:23.433", q2: "1:23.660", q3: null },
-  { driverId: 807, constructorId: 217, grid: 13, qualifying_position: 13, q1: "1:24.626", q2: "1:23.732", q3: null },
-  { driverId: 842, constructorId: 214, grid: 14, qualifying_position: 14, q1: null, q2: "1:23.773", q3: null },
-  { driverId: 864, constructorId: 217, grid: 15, qualifying_position: 15, q1: "1:24.006", q2: "1:23.776", q3: null },
-  { driverId: 848, constructorId: 3, grid: 16, qualifying_position: 16, q1: null, q2: "1:23.853", q3: null },
-  { driverId: 832, constructorId: 3, grid: 17, qualifying_position: 17, q1: "1:24.827", q2: "1:23.900", q3: null },
-  { driverId: 839, constructorId: 210, grid: 18, qualifying_position: 18, q1: "1:25.852", q2: "1:24.407", q3: null },
-  { driverId: 4, constructorId: 117, grid: 19, qualifying_position: 19, q1: "1:26.072", q2: "1:25.027", q3: null },
-  { driverId: 815, constructorId: 216, grid: 20, qualifying_position: 20, q1: null, q2: "1:25.082", q3: null },
-  { driverId: 822, constructorId: 216, grid: 21, qualifying_position: 21, q1: "1:25.984", q2: "1:25.149", q3: null },
-  { driverId: 840, constructorId: 117, grid: 22, qualifying_position: 22, q1: "1:26.066", q2: "1:25.253", q3: null },
-];
-
 const knownModernConstructorsById = new Map<number, string>([
   [1, "McLaren"],
   [3, "Williams"],
@@ -493,6 +463,24 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
   const raceById = new Map(races.map((race) => [race.raceId, race]));
   const participantsByRace: Record<string, ParticipantRequest[]> = {};
   for (const race of futureRaces) {
+    const currentQualifyingRows = qualifyingRows.filter(
+      (row) => Number(row.raceId) === race.raceId,
+    );
+    if (currentQualifyingRows.length > 0) {
+      participantsByRace[String(race.raceId)] = currentQualifyingRows
+        .map((row) => ({
+          driverId: Number(row.driverId),
+          constructorId: Number(row.constructorId),
+          grid: numberOrNull(row.position),
+          qualifying_position: numberOrNull(row.position),
+          q1: row.q1 ? String(row.q1) : null,
+          q2: row.q2 ? String(row.q2) : null,
+          q3: row.q3 ? String(row.q3) : null,
+        }))
+        .sort((a, b) => (a.qualifying_position ?? 99) - (b.qualifying_position ?? 99));
+      continue;
+    }
+
     const previousRaceId = resultRaceIds
       .filter((raceId) => (raceById.get(raceId)?.date ?? "") < race.date)
       .sort((a, b) => (raceById.get(b)?.date ?? "").localeCompare(raceById.get(a)?.date ?? ""))[0];
@@ -517,13 +505,6 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
         };
       })
       .sort((a, b) => (a.grid ?? 99) - (b.grid ?? 99));
-  }
-
-  const hasMonzaResultRows = resultRows.some(
-    (row) => Number(row.raceId) === monza2026RaceId,
-  );
-  if (!hasMonzaResultRows) {
-    participantsByRace[String(monza2026RaceId)] = monza2026PracticeParticipants;
   }
 
   const drivers: DriverOption[] = latestResults

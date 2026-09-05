@@ -55,8 +55,6 @@ const adsenseSlots = {
     process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE || "8969947460",
 };
 
-const monza2026RaceId = 1181;
-
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const countryFlags: Record<string, string> = {
@@ -303,22 +301,13 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
     };
   }, [data]);
 
-  const timingLabels =
-    selectedRaceId === monza2026RaceId
-      ? {
-          grid: "FP2 pos",
-          qualifying: "Practice",
-          q1: "FP1",
-          q2: "FP2",
-          q3: "FP3",
-        }
-      : {
-          grid: "Grid",
-          qualifying: "Qualy",
-          q1: "Q1",
-          q2: "Q2",
-          q3: "Q3",
-        };
+  const timingLabels = {
+    grid: "Grid",
+    qualifying: "Qualy",
+    q1: "Q1",
+    q2: "Q2",
+    q3: "Q3",
+  };
 
   function getDriver(driverId: number) {
     return data?.drivers.find((driver) => driver.driverId === driverId);
