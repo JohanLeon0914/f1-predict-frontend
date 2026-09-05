@@ -1411,7 +1411,18 @@ pre {
 .ufc-fight-card-face img {
   height: 100%;
   object-fit: cover;
+  transition: transform 260ms ease;
   width: 100%;
+}
+
+.ufc-fight-card:hover .ufc-fight-card-face.red-face img,
+.ufc-fight-card:focus-visible .ufc-fight-card-face.red-face img {
+  transform: scale(1.045);
+}
+
+.ufc-fight-card:hover .ufc-fight-card-face.blue-face img,
+.ufc-fight-card:focus-visible .ufc-fight-card-face.blue-face img {
+  transform: scaleX(-1) scale(1.045);
 }
 
 .ufc-fight-card-face.red-face {
