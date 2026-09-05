@@ -33,17 +33,7 @@ function fighterLastName(name: string) {
   return name.split(" ").at(-1) ?? name;
 }
 
-function formatEventDate(dateValue: string) {
-  const date = new Date(`${dateValue}T00:00:00`);
-  return {
-    day: new Intl.DateTimeFormat("en-US", { day: "2-digit" }).format(date),
-    label: new Intl.DateTimeFormat("en-US", { month: "short" }).format(date).toUpperCase(),
-    year: new Intl.DateTimeFormat("en-US", { year: "numeric" }).format(date),
-  };
-}
-
 function FutureFightCard({ event, portraits }: { event: UfcDisplayEvent; portraits: FighterPortrait[] }) {
-  const date = formatEventDate(event.date);
   const mainFight = event.fights[0];
   const redPortrait = getPortrait(portraits, mainFight?.red.name);
   const bluePortrait = getPortrait(portraits, mainFight?.blue.name);
@@ -51,11 +41,6 @@ function FutureFightCard({ event, portraits }: { event: UfcDisplayEvent; portrai
   return (
     <Link className="ufc-fight-card reveal" href={`/events/${event.eventId}`}>
       <div className="ufc-fight-card-visual">
-        <div className="ufc-fight-card-date">
-          <span>{date.label}</span>
-          <strong>{date.day}</strong>
-          <small>{date.year}</small>
-        </div>
         <div className="ufc-fight-card-fighters">
           <div className="ufc-fight-card-face red-face">
             {redPortrait?.imageUrl ? (
