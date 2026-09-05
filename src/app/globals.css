@@ -676,7 +676,7 @@ pre {
 }
 
 .platform-hero {
-  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+  border-bottom: 0;
   min-height: 100svh;
   overflow: hidden;
   position: relative;
@@ -951,7 +951,7 @@ pre {
 
 .model-difference-section {
   align-items: start;
-  border-top: 1px solid rgb(255 255 255 / 0.1);
+  border-top: 0;
   display: grid;
   gap: 2.5rem;
   grid-template-columns: minmax(17rem, 0.85fr) minmax(0, 1.45fr);
@@ -1019,7 +1019,7 @@ pre {
 }
 
 .pipeline-section {
-  border-top: 1px solid rgb(255 255 255 / 0.1);
+  border-top: 0;
 }
 
 .pipeline-heading {
@@ -1087,8 +1087,8 @@ pre {
 
 .platform-positioning {
   align-items: center;
-  border-bottom: 1px solid rgb(255 255 255 / 0.12);
-  border-top: 1px solid rgb(255 255 255 / 0.12);
+  border-bottom: 0;
+  border-top: 0;
   display: grid;
   justify-items: center;
   min-height: 25rem;
@@ -1100,25 +1100,29 @@ pre {
 
 .platform-positioning::after {
   background:
-    radial-gradient(circle at 50% 50%, rgb(5 6 7 / 0.22), #050607 72%),
-    linear-gradient(90deg, #050607 0%, rgb(5 6 7 / 0.5) 48%, #050607 100%);
+    radial-gradient(circle at 50% 50%, rgb(5 6 7 / 0.16), rgb(5 6 7 / 0.68) 66%, #050607 88%),
+    linear-gradient(90deg, rgb(5 6 7 / 0.72) 0%, rgb(5 6 7 / 0.3) 48%, rgb(5 6 7 / 0.72) 100%);
   content: "";
   inset: 0;
   position: absolute;
 }
 
-.positioning-track,
-.positioning-cage {
-  object-fit: cover;
-  opacity: 0.35;
-}
-
 .positioning-track {
-  object-position: left bottom;
+  clip-path: polygon(0 0, 54% 0, 46% 100%, 0 100%);
+  left: 0;
+  object-fit: cover;
+  object-position: left center;
+  opacity: 0.52;
+  width: 100%;
 }
 
 .positioning-cage {
-  object-position: right bottom;
+  clip-path: polygon(54% 0, 100% 0, 100% 100%, 46% 100%);
+  left: 0;
+  object-fit: cover;
+  object-position: right center;
+  opacity: 0.52;
+  width: 100%;
 }
 
 .positioning-content {
@@ -4406,7 +4410,7 @@ pre {
     linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 34%),
     #060708;
   border-top: 1px solid rgb(255 255 255 / 0.18);
-  margin-top: 2.5rem;
+  margin-top: 0;
 }
 
 .site-footer-top {
