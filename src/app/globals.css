@@ -215,6 +215,10 @@ button:disabled {
   visibility: hidden;
 }
 
+.sports-dropdown-mobile {
+  display: none;
+}
+
 .sports-nav:hover .sports-dropdown,
 .sports-nav-open .sports-dropdown {
   opacity: 1;
@@ -5347,17 +5351,21 @@ pre {
   }
 
   .site-nav {
-    background: rgb(8 9 10 / 0.97);
+    background: #080a0b;
     border: 1px solid var(--border);
     border-radius: 10px;
     box-shadow: 0 18px 45px rgb(0 0 0 / 0.42);
     display: none;
     gap: 0;
     left: 1rem;
+    max-height: calc(100svh - 5rem);
     padding: 0.5rem;
     position: absolute;
     right: 1rem;
     top: calc(100% - 0.25rem);
+    overflow-y: auto;
+    isolation: isolate;
+    z-index: 60;
   }
 
   .site-nav.site-nav-open {
@@ -5413,10 +5421,23 @@ pre {
     position: static;
     transform: none;
     visibility: visible;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sports-dropdown-mobile {
+    display: none;
+    gap: 0.25rem;
+    flex-direction: column;
+    width: 100%;
   }
 
   .sports-nav-open .sports-dropdown {
-    display: grid;
+    display: none;
+  }
+
+  .sports-nav-open .sports-dropdown-mobile {
+    display: flex;
   }
 
   .sports-dropdown p {
@@ -5424,9 +5445,57 @@ pre {
   }
 
   .sports-dropdown-link {
-    grid-template-columns: 2.2rem 1fr auto;
+    background: #0b0d0f;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    min-width: 0;
     width: 100%;
     padding: 0.7rem 0.85rem;
+  }
+
+  .sports-dropdown-link > span {
+    display: none;
+  }
+
+  .sports-dropdown-link b {
+    color: #fff;
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .sports-dropdown-link small {
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .sports-dropdown-link b {
+    line-height: 1.2;
+  }
+
+  .sports-dropdown-link i {
+    align-self: center;
+    margin-left: 0.75rem;
+  }
+
+  .sports-mobile-link {
+    align-items: center;
+    background: #0b0d0f;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 7px;
+    color: #fff;
+    display: flex;
+    font-size: 0.9rem;
+    font-weight: 800;
+    justify-content: space-between;
+    padding: 0.75rem 0.85rem;
+    width: 100%;
+  }
+
+  .sports-mobile-link i {
+    display: none;
   }
 
   .sports-dropdown-link:hover,
@@ -5570,11 +5639,11 @@ pre {
   }
 
   .platform-hero {
-    min-height: 46rem;
+    min-height: 48rem;
   }
 
   .platform-hero-content {
-    top: 8.5rem;
+    top: 8.75rem;
   }
 
   .platform-hero-panel-f1 {
@@ -5584,7 +5653,7 @@ pre {
 
   .platform-hero-panel-f1 .platform-hero-image {
     object-position: 38% center;
-    opacity: 0.38;
+    opacity: 0.58;
   }
 
   .platform-hero-panel-ufc {
@@ -5593,13 +5662,13 @@ pre {
   }
 
   .platform-hero-panel-ufc .platform-hero-image {
-    opacity: 0.26;
+    opacity: 0.4;
   }
 
   .platform-hero-overlay {
     background:
-      linear-gradient(90deg, rgb(5 6 7 / 0.94), rgb(5 6 7 / 0.78)),
-      linear-gradient(180deg, rgb(5 6 7 / 0.34) 0%, #050607 96%);
+      linear-gradient(90deg, rgb(5 6 7 / 0.78), rgb(5 6 7 / 0.58)),
+      linear-gradient(180deg, rgb(5 6 7 / 0.3) 0%, rgb(5 6 7 / 0.88) 96%);
   }
 
   .platform-hero-metric {
@@ -5721,6 +5790,20 @@ pre {
     display: none;
   }
 
+  .site-nav {
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .sports-dropdown-link {
+    gap: 0.65rem;
+    padding-block: 0.6rem;
+  }
+
+  .sports-dropdown-link small {
+    display: none;
+  }
+
   .hero-image {
     object-position: 68% center;
   }
@@ -5734,13 +5817,13 @@ pre {
   }
 
   .platform-hero {
-    min-height: 43rem;
+    min-height: 48rem;
   }
 
   .platform-hero-content {
     left: 1rem;
     max-width: calc(100vw - 2rem);
-    top: 7.5rem;
+    top: 8.75rem;
   }
 
   .platform-hero-content h1 {
@@ -5749,15 +5832,37 @@ pre {
 
   .platform-hero-content p:not(.tech-label) {
     font-size: 0.98rem;
+    margin-top: 1.45rem;
   }
 
   .platform-hero-actions {
     display: grid;
+    margin-top: 1.7rem;
   }
 
   .platform-hero-actions .red-cta,
   .platform-hero-actions .button-secondary {
     width: 100%;
+  }
+
+  .platform-hero-content small {
+    margin-top: 1.35rem;
+  }
+
+  .scroll-cue {
+    bottom: 1.5rem;
+  }
+
+  .sport-selector-section .section-heading {
+    margin-bottom: 1.75rem;
+  }
+
+  .sport-selector-section .section-heading h2 {
+    margin-top: 1rem;
+  }
+
+  .sport-selector-section .section-heading p:not(.tech-label) {
+    margin-top: 0.9rem;
   }
 
   .sport-card {

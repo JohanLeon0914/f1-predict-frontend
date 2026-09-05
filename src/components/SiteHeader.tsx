@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { useAuth } from "@/components/AuthProvider";
@@ -38,6 +38,7 @@ function getContextualNavItems(pathname: string) {
 export function SiteHeader() {
   const { foundingSupporter, signInWithGoogle, signOutUser, user } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [sportsMenuOpen, setSportsMenuOpen] = useState(false);
@@ -62,6 +63,11 @@ export function SiteHeader() {
   useEffect(() => {
     if (!menuOpen) setSportsMenuOpen(false);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!sportsMenuOpen) return;
+    sports.forEach((sport) => router.prefetch(sport.href));
+  }, [router, sportsMenuOpen]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -111,6 +117,7 @@ export function SiteHeader() {
                   className="sports-dropdown-link"
                   href={sport.href}
                   key={sport.href}
+                  prefetch
                   onClick={() => {
                     setMenuOpen(false);
                     setSportsMenuOpen(false);
@@ -122,6 +129,23 @@ export function SiteHeader() {
                     {sport.name}
                     <small>{sport.description}</small>
                   </b>
+                  <i aria-hidden="true">→</i>
+                </Link>
+              ))}
+            </div>
+            <div className="sports-dropdown-mobile" aria-label="Sports">
+              {sports.map((sport) => (
+                <Link
+                  className="sports-mobile-link"
+                  href={sport.href}
+                  key={`mobile-${sport.href}`}
+                  prefetch
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setSportsMenuOpen(false);
+                  }}
+                >
+                  <span>{sport.name}</span>
                   <i aria-hidden="true">→</i>
                 </Link>
               ))}
