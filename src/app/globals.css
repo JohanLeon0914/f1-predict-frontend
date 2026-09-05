@@ -5957,7 +5957,19 @@ pre {
   }
 
   .ufc-event-detail-hero > .ufc-detail-fighter-image {
-    display: none;
+    bottom: 0;
+    display: block;
+    height: 16rem;
+    opacity: 0.62;
+    z-index: 2;
+  }
+
+  .ufc-event-detail-hero > .ufc-detail-fighter-image.red {
+    left: -2rem;
+  }
+
+  .ufc-event-detail-hero > .ufc-detail-fighter-image.blue {
+    right: -2rem;
   }
 
   .ufc-detail-tabs {

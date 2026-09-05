@@ -123,7 +123,7 @@ export function UfcFightPredictor({ compact = false, event, fight, portraits }: 
 
   return (
     <div className="ufc-main-predictor" id="stats">
-      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} variant="inline" />
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       {!result ? (
         <div className="ufc-run-card">
           <span className="ufc-run-icon">▥</span>
