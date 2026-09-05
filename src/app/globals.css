@@ -1157,7 +1157,7 @@ pre {
 .ufc-hero,
 .ufc-events-hero {
   align-items: center;
-  border-bottom: 1px solid rgb(255 255 255 / 0.12);
+  border-bottom: 0;
   display: grid;
   min-height: 44rem;
   overflow: hidden;
@@ -1275,7 +1275,7 @@ pre {
 
 .ufc-model-section,
 .ufc-predictor-section {
-  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  border-bottom: 0;
 }
 
 .ufc-metric-grid {
@@ -1317,7 +1317,7 @@ pre {
 
 .ufc-entry,
 .ufc-future-section {
-  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  border-bottom: 0;
 }
 
 .ufc-entry {
