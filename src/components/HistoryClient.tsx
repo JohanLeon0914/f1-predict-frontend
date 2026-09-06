@@ -41,6 +41,16 @@ const monzaPrediction: SavedPrediction = {
     { driverId: 859, constructorId: 215, predicted_position: 9, score: 9 },
     { driverId: 866, constructorId: 215, predicted_position: 10, score: 10 },
   ],
+  actual_result: [
+    { driverId: 863, position: 1 },
+    { driverId: 847, position: 2 },
+    { driverId: 830, position: 3 },
+    { driverId: 1, position: 6 },
+    { driverId: 842, position: 7 },
+    { driverId: 864, position: 11 },
+    { driverId: 844, position: null, status: "DNF" },
+  ],
+  result_status: "partial",
 };
 
 function DriverAvatar({ driver }: { driver?: DriverOption }) {
@@ -101,6 +111,44 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
     return participants.length >= 20 && participants.every((entry) => entry.q1);
   }
 
+  function getActualResult(item: SavedPrediction, driverId: number) {
+    return item.actual_result?.find((result) => result.driverId === driverId) ?? null;
+  }
+
+  function getAccuracySummary(item: SavedPrediction) {
+    const compared = item.averaged_predictions
+      .map((prediction) => ({
+        prediction,
+        actual: getActualResult(item, prediction.driverId),
+      }))
+      .filter((entry) => entry.actual);
+    const exact = compared.filter(
+      (entry) => entry.actual?.position === entry.prediction.predicted_position,
+    ).length;
+    const podiumPredicted = new Set(
+      item.averaged_predictions
+        .filter((prediction) => prediction.predicted_position <= 3)
+        .map((prediction) => prediction.driverId),
+    );
+    const podiumActual = new Set(
+      item.actual_result
+        ?.filter((result) => result.position !== null && result.position <= 3)
+        .map((result) => result.driverId) ?? [],
+    );
+    const podiumHits = Array.from(podiumPredicted).filter((driverId) =>
+      podiumActual.has(driverId),
+    ).length;
+
+    return {
+      compared: compared.length,
+      exact,
+      podiumHits,
+      winnerHit:
+        item.averaged_predictions[0]?.driverId ===
+        item.actual_result?.find((result) => result.position === 1)?.driverId,
+    };
+  }
+
   return (
     <section className="history-page page-shell mx-auto max-w-[92rem] px-4 pb-10">
       <div className="history-hero">
@@ -124,6 +172,7 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
         {items.map((item) => {
           const race = getRace(item);
           const completeQualy = hasCompleteQualy(item);
+          const accuracy = getAccuracySummary(item);
 
           return (
             <article className="history-card" key={item.id}>
@@ -151,12 +200,46 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
                   <span>Qualy data</span>
                   <b>{completeQualy ? "Q1/Q2/Q3 loaded" : "Pending sync"}</b>
                 </div>
+                <div>
+                  <span>Race result</span>
+                  <b>
+                    {item.result_status === "official"
+                      ? "Official"
+                      : item.result_status === "partial"
+                        ? "Partial"
+                        : "Pending"}
+                  </b>
+                </div>
               </div>
+
+              {item.actual_result?.length ? (
+                <div className="history-comparison-summary">
+                  <div>
+                    <span>Winner</span>
+                    <b>{accuracy.winnerHit ? "Hit" : "Miss"}</b>
+                  </div>
+                  <div>
+                    <span>Podium drivers</span>
+                    <b>{accuracy.podiumHits}/3</b>
+                  </div>
+                  <div>
+                    <span>Exact positions</span>
+                    <b>
+                      {accuracy.exact}/{accuracy.compared}
+                    </b>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="history-ranking">
                 {item.averaged_predictions.map((prediction) => {
                   const driver = getDriver(prediction.driverId);
                   const width = Math.max(18, 100 - (prediction.predicted_position - 1) * 7);
+                  const actual = getActualResult(item, prediction.driverId);
+                  const delta =
+                    actual?.position === null || actual?.position === undefined
+                      ? null
+                      : actual.position - prediction.predicted_position;
 
                   return (
                     <div className="history-ranking-row" key={`${item.id}-${prediction.driverId}`}>
@@ -167,7 +250,21 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
                         <small>{getTeamName(prediction)}</small>
                         <i style={{ width: `${width}%` }} />
                       </div>
-                      <b>{prediction.score.toFixed(2)}</b>
+                      {actual ? (
+                        <div className="history-result-cell">
+                          <span>
+                            {actual.position ? `P${actual.position}` : actual.status ?? "DNF"}
+                          </span>
+                          <b className={delta === 0 ? "exact" : ""}>
+                            {delta === null ? "DNF" : delta === 0 ? "Exact" : `${delta > 0 ? "+" : ""}${delta}`}
+                          </b>
+                        </div>
+                      ) : (
+                        <div className="history-result-cell muted">
+                          <span>Actual</span>
+                          <b>TBD</b>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

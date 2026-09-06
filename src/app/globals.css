@@ -7189,7 +7189,7 @@ img.wizard-track.active {
 .history-meta-grid {
   border-bottom: 1px solid var(--border);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .history-meta-grid div {
@@ -7212,6 +7212,37 @@ img.wizard-track.active {
 .history-ranking {
   display: grid;
   padding: 0.5rem 0;
+}
+
+.history-comparison-summary {
+  background: rgb(239 51 64 / 0.08);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.history-comparison-summary div {
+  border-right: 1px solid var(--border);
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 1.2rem;
+}
+
+.history-comparison-summary div:last-child {
+  border-right: 0;
+}
+
+.history-comparison-summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.history-comparison-summary b {
+  color: #fff;
+  font-size: 1.1rem;
 }
 
 .history-ranking-row {
@@ -7277,6 +7308,32 @@ img.wizard-track.active {
   color: #fff;
   font-size: 1.05rem;
   text-align: right;
+}
+
+.history-result-cell {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: end;
+}
+
+.history-result-cell span {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.history-result-cell b {
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.history-result-cell b.exact {
+  color: #8df0b2;
+}
+
+.history-result-cell.muted span,
+.history-result-cell.muted b {
+  color: var(--muted);
 }
 
 @keyframes wizardIn {
@@ -7465,16 +7522,19 @@ img.wizard-track.active {
 
   .history-hero,
   .history-card-header,
-  .history-meta-grid {
+  .history-meta-grid,
+  .history-comparison-summary {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .history-meta-grid div {
+  .history-meta-grid div,
+  .history-comparison-summary div {
     border-bottom: 1px solid var(--border);
     border-right: 0;
   }
 
-  .history-meta-grid div:last-child {
+  .history-meta-grid div:last-child,
+  .history-comparison-summary div:last-child {
     border-bottom: 0;
   }
 

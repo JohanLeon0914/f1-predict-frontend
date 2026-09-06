@@ -199,4 +199,10 @@ export type SavedPrediction = {
   request: PredictionRequest;
   averaged_predictions: PredictionItem[];
   raw_predictions?: PredictionResponse[];
+  actual_result?: Array<{
+    driverId: number;
+    position: number | null;
+    status?: string | null;
+  }>;
+  result_status?: "pending" | "partial" | "official";
 };
