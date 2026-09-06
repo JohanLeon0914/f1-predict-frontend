@@ -49,9 +49,24 @@ const monzaPrediction: SavedPrediction = {
     { driverId: 863, position: 1 },
     { driverId: 847, position: 2 },
     { driverId: 830, position: 3 },
+    { driverId: 846, position: 4 },
+    { driverId: 857, position: 5 },
     { driverId: 1, position: 6 },
     { driverId: 842, position: 7 },
+    { driverId: 866, position: 8 },
+    { driverId: 861, position: 9 },
+    { driverId: 852, position: 10 },
     { driverId: 864, position: 11 },
+    { driverId: 807, position: 12 },
+    { driverId: 832, position: 13 },
+    { driverId: 859, position: 14 },
+    { driverId: 860, position: 15 },
+    { driverId: 839, position: 16 },
+    { driverId: 848, position: 17 },
+    { driverId: 815, position: 18 },
+    { driverId: 822, position: 19 },
+    { driverId: 840, position: null, status: "DNF" },
+    { driverId: 4, position: null, status: "DNF" },
     { driverId: 844, position: null, status: "DNF" },
   ],
   result_status: "partial",
@@ -214,7 +229,7 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
                     {item.result_status === "official"
                       ? "Official"
                       : item.result_status === "partial"
-                        ? "Partial"
+                        ? "Provisional"
                         : "Pending"}
                   </b>
                 </div>
@@ -270,7 +285,7 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
                       ) : (
                         <div className="history-result-cell muted">
                           <span>Actual</span>
-                          <b>TBD</b>
+                          <b>Pending</b>
                         </div>
                       )}
                     </div>
