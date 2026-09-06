@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 import { CircuitSilhouette } from "@/components/CircuitSilhouette";
 import { useAuth } from "@/components/AuthProvider";
-import { GoogleAdSlot } from "@/components/GoogleAdSlot";
 import { PredictionAnalysisDashboard } from "@/components/PredictionAnalysisDashboard";
 import {
   getCircuitImagesForRaces,
@@ -47,13 +46,6 @@ const steps: Array<{ id: Step; title: string; copy: string }> = [
   { id: 2, title: "Drivers & prediction", copy: "Configure and run the simulation" },
   { id: 3, title: "Results", copy: "Review rankings and metrics" },
 ];
-
-const adsenseSlots = {
-  racesTop: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_TOP || "9642182102",
-  racesInline: process.env.NEXT_PUBLIC_ADSENSE_SLOT_RACES_INLINE || "8969947460",
-  dashboardRectangle:
-    process.env.NEXT_PUBLIC_ADSENSE_SLOT_DASHBOARD_RECTANGLE || "8969947460",
-};
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -499,12 +491,6 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
         ))}
       </div>
 
-      <GoogleAdSlot
-        className="ad-wide"
-        format="horizontal"
-        slot={adsenseSlots.racesTop}
-      />
-
       {error ? <div className="wizard-error">{error}</div> : null}
 
       <section className={`wizard-pane ${step === 1 ? "active" : ""}`} hidden={step !== 1}>
@@ -560,12 +546,6 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
               </button>
             ))}
           </div>
-
-          <GoogleAdSlot
-            className="ad-wide ad-in-panel"
-            format="horizontal"
-            slot={adsenseSlots.racesInline}
-          />
 
           <div className="wizard-actions wizard-actions-hidden">
             <button
@@ -787,11 +767,6 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
 
           {showAnalysisDashboard && analysisResponse ? (
             <>
-              <GoogleAdSlot
-                className="ad-dashboard"
-                format="rectangle"
-                slot={adsenseSlots.dashboardRectangle}
-              />
               <PredictionAnalysisDashboard
                 constructors={data?.constructors ?? []}
                 drivers={data?.drivers ?? []}
@@ -845,12 +820,6 @@ export function RacesClient({ initialData = null }: RacesClientProps) {
                 <div><dt>Top 10 accuracy</dt><dd>{top10?.toFixed(2) ?? "-"}</dd></div>
               </dl>
             </article>
-
-            <GoogleAdSlot
-              className="ad-results"
-              format="rectangle"
-              slot={adsenseSlots.dashboardRectangle}
-            />
 
             <article className="metrics-card">
               <h3>Simulation info</h3>

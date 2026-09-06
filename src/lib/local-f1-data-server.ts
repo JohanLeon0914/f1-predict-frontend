@@ -132,6 +132,36 @@ const knownModernDriversById = new Map<
   [822, { name: "Valtteri Bottas", constructorId: 216, number: "77" }],
 ]);
 
+const startingGridOverridesByRace = new Map<number, Map<number, number>>([
+  [
+    1181,
+    new Map([
+      [842, 1],
+      [847, 2],
+      [844, 3],
+      [1, 4],
+      [830, 5],
+      [857, 6],
+      [861, 7],
+      [846, 8],
+      [866, 9],
+      [864, 10],
+      [860, 11],
+      [807, 12],
+      [832, 13],
+      [839, 14],
+      [852, 15],
+      [822, 16],
+      [815, 17],
+      [4, 18],
+      [840, 19],
+      [863, 20],
+      [859, 21],
+      [848, 22],
+    ]),
+  ],
+]);
+
 function parseCsv(text: string) {
   const rows: string[][] = [];
   let field = "";
@@ -467,17 +497,18 @@ async function buildLocalF1Data(): Promise<LocalF1Data> {
       (row) => Number(row.raceId) === race.raceId,
     );
     if (currentQualifyingRows.length > 0) {
+      const startingGridOverride = startingGridOverridesByRace.get(race.raceId);
       participantsByRace[String(race.raceId)] = currentQualifyingRows
         .map((row) => ({
           driverId: Number(row.driverId),
           constructorId: Number(row.constructorId),
-          grid: numberOrNull(row.position),
+          grid: startingGridOverride?.get(Number(row.driverId)) ?? numberOrNull(row.position),
           qualifying_position: numberOrNull(row.position),
           q1: row.q1 ? String(row.q1) : null,
           q2: row.q2 ? String(row.q2) : null,
           q3: row.q3 ? String(row.q3) : null,
         }))
-        .sort((a, b) => (a.qualifying_position ?? 99) - (b.qualifying_position ?? 99));
+        .sort((a, b) => (a.grid ?? 99) - (b.grid ?? 99));
       continue;
     }
 

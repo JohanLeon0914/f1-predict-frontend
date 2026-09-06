@@ -2848,23 +2848,6 @@ pre {
   display: none;
 }
 
-.ad-wide {
-  min-height: 7.2rem;
-}
-
-.ad-in-panel {
-  margin: 0;
-}
-
-.ad-dashboard,
-.ad-results {
-  min-height: 18rem;
-}
-
-.ad-results {
-  grid-column: auto;
-}
-
 @keyframes authFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -7098,6 +7081,204 @@ img.wizard-track.active {
   font-weight: 900;
 }
 
+.history-page {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.history-hero {
+  align-items: end;
+  background:
+    radial-gradient(circle at 100% 0%, rgb(239 51 64 / 0.18), transparent 18rem),
+    linear-gradient(145deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.018)),
+    #0b0d0f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.history-hero h1 {
+  color: #fff;
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+  font-weight: 950;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+  margin-top: 0.45rem;
+}
+
+.history-hero p:not(.tech-label) {
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 0.75rem;
+  max-width: 48rem;
+}
+
+.history-hero-stat {
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.25rem;
+  min-width: 11rem;
+  padding: 1rem;
+}
+
+.history-hero-stat span,
+.history-meta-grid span,
+.history-card-header span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.history-hero-stat b {
+  color: #fff;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.history-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-card {
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018)),
+    #0d0f11;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.history-card-header {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 13rem);
+  padding: 1.2rem;
+}
+
+.history-card-header h2 {
+  color: #fff;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  margin-top: 0.4rem;
+}
+
+.history-card-header p {
+  color: var(--muted);
+  margin-top: 0.45rem;
+}
+
+.history-track {
+  height: 6.6rem;
+  object-fit: contain;
+  opacity: 0.86;
+  width: 100%;
+}
+
+.history-meta-grid {
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.history-meta-grid div {
+  border-right: 1px solid var(--border);
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1.2rem;
+}
+
+.history-meta-grid div:last-child {
+  border-right: 0;
+}
+
+.history-meta-grid b {
+  color: #fff;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.history-ranking {
+  display: grid;
+  padding: 0.5rem 0;
+}
+
+.history-ranking-row {
+  align-items: center;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 2rem 3.4rem minmax(0, 1fr) 4rem;
+  min-height: 4.5rem;
+  padding: 0.45rem 1.2rem;
+}
+
+.history-ranking-row > span {
+  color: var(--red);
+  font-size: 1.2rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.history-driver-avatar {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: block;
+  height: 3.15rem;
+  object-fit: cover;
+  object-position: center top;
+  width: 3.15rem;
+}
+
+.history-driver-avatar-fallback {
+  align-items: center;
+  background: linear-gradient(135deg, var(--red), #151719);
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: center;
+}
+
+.history-ranking-row strong,
+.history-ranking-row small {
+  display: block;
+}
+
+.history-ranking-row strong {
+  color: #fff;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.history-ranking-row small {
+  color: var(--muted);
+  margin-top: 0.12rem;
+}
+
+.history-ranking-row i {
+  background: linear-gradient(90deg, var(--red), rgb(255 255 255 / 0.12));
+  display: block;
+  height: 0.22rem;
+  margin-top: 0.48rem;
+}
+
+.history-ranking-row b {
+  color: #fff;
+  font-size: 1.05rem;
+  text-align: right;
+}
+
 @keyframes wizardIn {
   from {
     opacity: 0;
@@ -7280,6 +7461,32 @@ img.wizard-track.active {
 
   .results-grid {
     padding: 0.8rem;
+  }
+
+  .history-hero,
+  .history-card-header,
+  .history-meta-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .history-meta-grid div {
+    border-bottom: 1px solid var(--border);
+    border-right: 0;
+  }
+
+  .history-meta-grid div:last-child {
+    border-bottom: 0;
+  }
+
+  .history-ranking-row {
+    gap: 0.55rem;
+    grid-template-columns: 1.6rem 3rem minmax(0, 1fr) 3.4rem;
+    padding-inline: 0.85rem;
+  }
+
+  .history-driver-avatar {
+    height: 2.8rem;
+    width: 2.8rem;
   }
 
   .winner-card {

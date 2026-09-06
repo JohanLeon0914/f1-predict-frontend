@@ -23,10 +23,16 @@ function getContextualNavItems(pathname: string) {
     ];
   }
 
-  if (pathname.startsWith("/f1") || pathname.startsWith("/races") || pathname.startsWith("/analysis")) {
+  if (
+    pathname.startsWith("/f1") ||
+    pathname.startsWith("/races") ||
+    pathname.startsWith("/analysis") ||
+    pathname.startsWith("/history")
+  ) {
     return [
       { href: "/races", label: "Races", activePath: "/races" },
       { href: "/analysis", label: "Analysis", activePath: "/analysis" },
+      { href: "/history", label: "History", activePath: "/history" },
       { href: "/#who-we-are", label: "About", activePath: null },
       { href: "/support", label: "Support", activePath: "/support" },
     ];
