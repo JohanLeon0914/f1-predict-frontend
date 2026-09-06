@@ -12,6 +12,10 @@ type HistoryClientProps = {
   initialData?: LocalF1Data | null;
 };
 
+const driverNameOverrides = new Map<number, string>([
+  [865, "Isack Hadjar"],
+]);
+
 const monzaPrediction: SavedPrediction = {
   id: "seed-2026-italian-gp-2026-09-05",
   created_at: "2026-09-05T15:30:00.000Z",
@@ -92,6 +96,10 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
 
   function getDriver(driverId: number) {
     return data?.drivers.find((driver) => driver.driverId === driverId);
+  }
+
+  function getDriverName(driverId: number) {
+    return getDriver(driverId)?.name ?? driverNameOverrides.get(driverId) ?? `Driver ${driverId}`;
   }
 
   function getRace(item: SavedPrediction) {
@@ -246,7 +254,7 @@ export function HistoryClient({ initialData = null }: HistoryClientProps) {
                       <span>{prediction.predicted_position}</span>
                       <DriverAvatar driver={driver} />
                       <div>
-                        <strong>{driver?.name ?? `Driver ${prediction.driverId}`}</strong>
+                        <strong>{getDriverName(prediction.driverId)}</strong>
                         <small>{getTeamName(prediction)}</small>
                         <i style={{ width: `${width}%` }} />
                       </div>
