@@ -97,7 +97,7 @@ export function UfcLandingPage({
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setHydrated(true);
+    window.setTimeout(() => setHydrated(true), 0);
   }, []);
 
   const futureEvents = events.slice(0, 3);
@@ -203,6 +203,9 @@ export function UfcLandingPage({
             <a className="button-primary ufc-primary" href="#predictor">
               Run UFC prediction <span>→</span>
             </a>
+            <Link className="button-secondary" href="/ufc/career">
+              Play Road to Glory <span>→</span>
+            </Link>
             <Link className="button-secondary" href="/events">
               Explore events <span>→</span>
             </Link>
@@ -222,6 +225,25 @@ export function UfcLandingPage({
           GRDX1 turns historical results, fighter attributes and event-specific context into
           machine learning outputs you can review before the fight.
         </p>
+      </section>
+
+      <section className="landing-section road-preview-section">
+        <div className="section-heading reveal">
+          <p className="tech-label ufc-label">INTERACTIVE CAREER</p>
+          <h2>Build a fighter legacy.</h2>
+          <Link href="/ufc/career">Start career →</Link>
+        </div>
+        <Link className="road-preview-card reveal" href="/ufc/career">
+          <div>
+            <span>GRDX1 ROAD TO GLORY</span>
+            <h3>From unknown amateur to world champion.</h3>
+            <p>
+              A seeded MMA career game with decisions, random events, fight camps, title shots,
+              injuries, retirement and a shareable legacy card.
+            </p>
+          </div>
+          <i aria-hidden="true">PLAY</i>
+        </Link>
       </section>
 
       <section className="landing-section ufc-future-section">

@@ -17,6 +17,7 @@ const navItems = [
 function getContextualNavItems(pathname: string) {
   if (pathname.startsWith("/ufc") || pathname.startsWith("/events")) {
     return [
+      { href: "/ufc/career", label: "Road to Glory", activePath: "/ufc/career" },
       { href: "/events", label: "Events", activePath: "/events" },
       { href: "/#who-we-are", label: "About", activePath: null },
       { href: "/support", label: "Support", activePath: "/support" },
@@ -67,7 +68,9 @@ export function SiteHeader() {
     return () => media.removeEventListener("change", update);
   }, []);
   useEffect(() => {
-    if (!menuOpen) setSportsMenuOpen(false);
+    if (!menuOpen) {
+      window.setTimeout(() => setSportsMenuOpen(false), 0);
+    }
   }, [menuOpen]);
 
   useEffect(() => {
@@ -76,8 +79,10 @@ export function SiteHeader() {
   }, [router, sportsMenuOpen]);
 
   useEffect(() => {
-    setMenuOpen(false);
-    setSportsMenuOpen(false);
+    window.setTimeout(() => {
+      setMenuOpen(false);
+      setSportsMenuOpen(false);
+    }, 0);
   }, [pathname]);
 
   const headerNavItems = getContextualNavItems(pathname);
